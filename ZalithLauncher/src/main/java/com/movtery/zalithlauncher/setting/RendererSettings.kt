@@ -50,7 +50,7 @@ object RendererSettings : SettingsRegistry() {
     /**
      * 分辨率
      */
-    val resolutionRatio = intSetting("resolutionRatio", 100, 25..300)
+    val resolutionRatio = intSetting("resolutionRatio", 80, 25..300) // Haven: 80% renders ~36% fewer pixels for a sharp-enough phone screen
 
     /**
      * 分辨率规则

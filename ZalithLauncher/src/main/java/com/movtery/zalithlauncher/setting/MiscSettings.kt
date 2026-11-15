@@ -24,6 +24,11 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.SortByEnum
 
 object MiscSettings : SettingsRegistry() {
     /**
+     * Haven: FPS pack (Sodium, Lithium, …) on the first start of each Fabric profile
+     */
+    val havenPerformance = boolSetting("havenPerformance", true)
+
+    /**
      * 当前选择的账号
      */
     val currentAccount = stringSetting("currentAccount", "")

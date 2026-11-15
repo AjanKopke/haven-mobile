@@ -315,10 +315,18 @@ fun RendererSettingsScreen(
 
                     SwitchSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
-                        position = CardPosition.Bottom,
+                        position = CardPosition.Middle,
                         unit = RendererSettings.gameFullScreen,
                         title = stringResource(R.string.settings_renderer_full_screen_title),
                         summary = stringResource(R.string.settings_renderer_full_screen_summary)
+                    )
+
+                    SwitchSettingsCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Bottom,
+                        unit = com.movtery.zalithlauncher.setting.MiscSettings.havenPerformance,
+                        title = "Haven FPS paketi",
+                        summary = "Fabric profilinin ilk açılışında Sodium, Lithium, FerriteCore, ImmediatelyFast, Entity Culling ve ModernFix kurulur"
                     )
                 }
             }

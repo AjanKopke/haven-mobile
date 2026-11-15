@@ -494,6 +494,16 @@ fun LoginMenuDialog(
                                     onDismissRequest()
                                 }
                             )
+                            //Haven: Google = Haven account, same name as on the PC
+                            val havenContext = androidx.compose.ui.platform.LocalContext.current
+                            LoginItem(
+                                modifier = Modifier.fillMaxWidth(),
+                                title = "Google (Haven hesabı)",
+                                onClick = {
+                                    com.movtery.zalithlauncher.haven.HavenAccount.signIn(havenContext)
+                                    onDismissRequest()
+                                }
+                            )
                             //离线登录
                             LoginItem(
                                 modifier = Modifier.fillMaxWidth(),

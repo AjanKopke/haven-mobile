@@ -32,6 +32,7 @@ import com.movtery.zalithlauncher.bridge.LoggerBridge.appendTitle
 import com.movtery.zalithlauncher.bridge.ZLBridge
 import com.movtery.zalithlauncher.context.readAssetFile
 import com.movtery.zalithlauncher.haven.HavenMod
+import com.movtery.zalithlauncher.haven.HavenPerformance
 import com.movtery.zalithlauncher.haven.HavenPlay
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountType
@@ -271,6 +272,7 @@ class GameLauncher(
             }
         ).getAllArgs().toMutableList()
         HavenMod.addTo(activity, version, launchArgs)
+        withContext(Dispatchers.IO) { runCatching { HavenPerformance.ensure(version) } }
         // a Haven Play join waiting on this profile: straight into the friend's world
         withContext(Dispatchers.IO) { HavenPlay.launchAddress(gameDirPath) }?.let { address ->
             val port = address.substringAfterLast(':').toIntOrNull() ?: 25565
