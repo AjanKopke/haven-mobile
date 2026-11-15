@@ -31,6 +31,8 @@ import com.movtery.zalithlauncher.bridge.LoggerBridge.appendInfo
 import com.movtery.zalithlauncher.bridge.LoggerBridge.appendTitle
 import com.movtery.zalithlauncher.bridge.ZLBridge
 import com.movtery.zalithlauncher.context.readAssetFile
+import com.movtery.zalithlauncher.haven.HavenMod
+import com.movtery.zalithlauncher.haven.HavenPlay
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountType
 import com.movtery.zalithlauncher.game.account.offline.OfflineYggdrasilServer
@@ -267,7 +269,18 @@ class GameLauncher(
             getCacioJavaArgs = { isJava8 ->
                 getCacioJavaArgs(screenSize, isJava8)
             }
-        ).getAllArgs()
+        ).getAllArgs().toMutableList()
+        HavenMod.addTo(activity, version, launchArgs)
+        // a Haven Play join waiting on this profile: straight into the friend's world
+        withContext(Dispatchers.IO) { HavenPlay.launchAddress(gameDirPath) }?.let { address ->
+            val port = address.substringAfterLast(':').toIntOrNull() ?: 25565
+            val host = address.substringBeforeLast(':').removePrefix("[").removeSuffix("]")
+            if (version.getVersionInfo()?.quickPlay?.isQuickPlayMultiplayer == true) {
+                launchArgs.addAll(listOf("--quickPlayMultiplayer", address))
+            } else {
+                launchArgs.addAll(listOf("--server", host, "--port", port.toString()))
+            }
+        }
 
         tryStartTouchProxy()
 

@@ -18,6 +18,7 @@
 
 package com.movtery.zalithlauncher.ui.screens.content
 
+import com.movtery.zalithlauncher.haven.HavenPlayCard
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
@@ -217,6 +218,8 @@ private fun MainMenu(
 //                style = MaterialTheme.typography.titleSmall
 //            )
 //        }
+
+        HavenPlayCard(modifier = Modifier.fillMaxWidth())
 
         //多人联机设置菜单
         SettingsCardColumn(
