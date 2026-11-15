@@ -1,0 +1,27 @@
+{
+  "code": 2,
+  "version": "1.0.1",
+  "created_at": "2026-11-15",
+  "files": [
+    {
+      "file_name": "HavenMobile-1.0.1-arm64-v8a.apk",
+      "uri": "https://github.com/AjanKopke/haven-mobile/releases/download/v1.0.1/HavenMobile-1.0.1-arm64-v8a.apk",
+      "arch": "arm64",
+      "size": 189973491
+    }
+  ],
+  "default_body": {
+    "language": "tr",
+    "markdown": "- Uygulama içi güncelleme: yeni sürüm çıkınca açılışta haber verir\n- Haven logosu, bağış ve destekçi pencereleri kaldırıldı"
+  },
+  "bodies": [
+    {
+      "language": "tr",
+      "markdown": "- Uygulama içi güncelleme: yeni sürüm çıkınca açılışta haber verir\n- Haven logosu, bağış ve destekçi pencereleri kaldırıldı"
+    },
+    {
+      "language": "en",
+      "markdown": "- Uygulama içi güncelleme: yeni sürüm çıkınca açılışta haber verir\n- Haven logosu, bağış ve destekçi pencereleri kaldırıldı"
+    }
+  ]
+}
