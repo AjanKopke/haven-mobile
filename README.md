@@ -11,6 +11,6 @@ Download: <https://havenclient.net/client/> or the [releases](https://github.com
 
 ## License and credits
 
-Haven Mobile is a fork of [Zalith Launcher 2](https://github.com/ZalithLauncher/ZalithLauncher2) by MovTery and contributors, itself based on PojavLauncher. It is free software under the [GNU GPL v3](LICENSE); this repository is its complete source. All upstream copyright notices are kept.
+Haven Mobile is a fork of [Zalith Launcher 2](https://github.com/ZalithLauncher/ZalithLauncher2) by MovTery and contributors, itself based on PojavLauncher. The launcher is free software under the [GNU GPL v3](LICENSE) and this repository is its complete source. The Haven mod jars in `assets/haven-mod` are an independent Fabric mod that ships alongside it and loads into the game at runtime. All upstream copyright notices are kept.
 
 Minecraft is a trademark of Mojang AB. Haven Mobile is not affiliated with Mojang or Microsoft.
