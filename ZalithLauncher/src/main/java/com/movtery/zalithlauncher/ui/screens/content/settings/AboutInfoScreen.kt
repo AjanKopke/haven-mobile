@@ -64,7 +64,6 @@ import com.movtery.zalithlauncher.library.libraryData
 import com.movtery.zalithlauncher.path.URL_COMMUNITY
 import com.movtery.zalithlauncher.path.URL_MCMOD
 import com.movtery.zalithlauncher.path.URL_PROJECT
-import com.movtery.zalithlauncher.path.URL_SUPPORT
 import com.movtery.zalithlauncher.path.URL_WEBLATE
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.AnimatedLazyColumn
@@ -127,14 +126,9 @@ fun AboutInfoScreen(
                         ButtonIconItem(
                             icon = painterResource(R.drawable.img_avatar_movtery),
                             title = stringResource(R.string.about_launcher_author_movtery_title),
-                            text = stringResource(R.string.about_launcher_author_movtery_text, launcherName),
-                            button = {
-                                Button(
-                                    onClick = { openLink(URL_SUPPORT) }
-                                ) {
-                                    Text(text = stringResource(R.string.about_sponsor))
-                                }
-                            }
+                            // GPL-3 7(b): the upstream copyright notice stays visible here
+                            text = "Zalith Launcher 2 © MovTery and contributors, GPL-3.0",
+                            button = {}
                         )
                     }
                 }
@@ -148,18 +142,6 @@ fun AboutInfoScreen(
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         val launcherName = remember { launcherName() }
 
-                        ButtonIconItem(
-                            icon = painterResource(R.drawable.img_sponsor),
-                            title = stringResource(R.string.about_sponsors_title),
-                            text = stringResource(R.string.about_sponsors_summary, launcherName),
-                            button = {
-                                Button(
-                                    onClick = onViewSponsors
-                                ) {
-                                    Text(text = stringResource(R.string.generic_view))
-                                }
-                            }
-                        )
 
                         ButtonIconItem(
                             icon = painterResource(R.drawable.img_avatar_bangbang93),

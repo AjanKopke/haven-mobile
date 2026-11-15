@@ -78,3 +78,31 @@ jobs:
         with:
           files: ZalithLauncher/build/outputs/apk/release/*.apk
           make_latest: true
+
+      # the app's update check reads info/latest_version_md.json from main (GitHub contents API, base64)
+      - name: Update info for the in-app updater
+        if: env.VARIANT == 'Release'
+        run: |
+          code=$(grep '^launcher_version_code=' ZalithLauncher/gradle.properties | cut -d= -f2 | tr -d '\r')
+          name=$(grep '^launcher_version_name=' ZalithLauncher/gradle.properties | cut -d= -f2 | tr -d '\r')
+          apk=$(ls ZalithLauncher/build/outputs/apk/release/*.apk | head -1)
+          file=$(basename "$apk")
+          size=$(stat -c %s "$apk")
+          notes=$(git tag -l --format='%(contents)' "$GITHUB_REF_NAME" | sed '/^-----BEGIN/,$d')
+          [ -n "$notes" ] || notes="Haven Mobile $name"
+          git fetch -q origin main && git checkout -q -B main origin/main
+          mkdir -p info
+          python3 - "$code" "$name" "$file" "$size" "$GITHUB_REF_NAME" "$notes" <<'PY'
+          import json, sys, datetime
+          code, name, file, size, tag, notes = sys.argv[1:]
+          url = f"https://github.com/AjanKopke/haven-mobile/releases/download/{tag}/{file}"
+          body = {"language": "tr", "markdown": notes}
+          data = {"code": int(code), "version": name, "created_at": datetime.datetime.utcnow().strftime("%Y-%m-%d"),
+                  "files": [{"file_name": file, "uri": url, "arch": "arm64", "size": int(size)}],
+                  "default_body": body, "bodies": [body, {"language": "en", "markdown": notes}]}
+          open("info/latest_version_md.json", "w").write(json.dumps(data, ensure_ascii=False, indent=2) + "\n")
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add info/latest_version_md.json
+          git commit -qm "info: $name [skip ci]" && git push -q origin main

@@ -200,7 +200,7 @@ class LauncherUpgradeViewModel: ViewModel() {
                     GLOBAL_JSON.decodeFromString(RemoteData.serializer(), contentString)
                 }
             }.getOrElse { e ->
-                if (Locale.getDefault().language == "zh") {
+                if (false) { // Haven: upstream's Chinese mirror lists Zalith releases, not ours
                     runCatching {
                         Logger.info(TAG, "Check for updates in the Chinese region.")
                         //在中国地区，可能因为无法访问 Github API 导致获取更新信息失败

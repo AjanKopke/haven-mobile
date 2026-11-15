@@ -46,7 +46,7 @@ object MiscSettings : SettingsRegistry() {
     /**
      * 是否在打开启动器时，根据特定的运行游戏次数，显示赞助支持弹窗
      */
-    val showSponsorship = boolSetting("showSponsorship", true)
+    val showSponsorship = boolSetting("showSponsorship", false) // Haven: no donation prompt after games
 
     /**
      * 是否启用陶瓦联机
