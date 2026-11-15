@@ -21,7 +21,8 @@ Haven Client'ın Android sürümü. Zalith Launcher 2'nin (GPL-3, PojavLauncher 
 | `HavenPerformance.kt` | FPS paketi: Fabric profilinin ilk açılışında Modrinth'ten Sodium, Lithium, FerriteCore, ImmediatelyFast, Entity Culling, ModernFix (+ zorunlu bağımlılıklar). Profil başına bir kez (`.haven-perf`). Ayar: Renderer ayarları → "Haven FPS paketi". |
 - Microsoft girişi: Live istemcisi `00000000402b5328` (masaüstüyle aynı), login.live.com cihaz kodu. Zalith'in Azure istemci kimliği gerekmiyor.
 - Varsayılan çözünürlük %80 (`RendererSettings.resolutionRatio`).
-- Güncelleme denetimi `URL_PROJECT_INFO` → bu deponun `info/` klasörü (henüz yok, denetim sessizce boş döner).
+- Uygulama içi güncelleme: açılışta (saatte en fazla bir) `info/latest_version_md.json` okunur; `code` > kurulu `versionCode` ise pencere çıkar, APK tarayıcıyla iner, Android kurulumu sorar. Dosyayı her `v*` etiketinde CI yazar (`[skip ci]` commit'i). Zalith'in Çin aynası kapatıldı (Zalith sürümlerini gösteriyordu).
+- 1.0.1: Zalith logosu → Haven, bağış penceresi/destekçiler kaldırıldı; Hakkında'da GPL 7(b) gereği "Zalith Launcher 2 © MovTery" satırı duruyor (silinmemeli).
 
 ## Derleme ve sürüm
 - **Yerelde Gradle çalıştırma** (PC yük altında kapanıyor). Her şey GitHub Actions'ta: `.github/workflows/haven.yml`.
