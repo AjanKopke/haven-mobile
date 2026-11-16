@@ -33,8 +33,12 @@ object HavenPerformance {
     private const val MARKER = ".haven-perf"
     private const val API = "https://api.modrinth.com/v2"
 
-    /** Sodium (renderer), Lithium (game logic), FerriteCore (RAM), ImmediatelyFast (HUD/text), Entity Culling, ModernFix (start, RAM). */
-    private val PACK = listOf("sodium", "lithium", "ferrite-core", "immediatelyfast", "entityculling", "modernfix")
+    /**
+     * Lithium (game logic), FerriteCore (RAM), Entity Culling, ModernFix (start, RAM): none of them touch the GL
+     * calls. Sodium and ImmediatelyFast are left out until they are tested on the phone renderers (GL4ES and some
+     * MobileGlues builds crash with them).
+     */
+    private val PACK = listOf("lithium", "ferrite-core", "entityculling", "modernfix")
 
     private val client = OkHttpClient.Builder().callTimeout(60, TimeUnit.SECONDS).build()
 
@@ -107,7 +111,7 @@ object HavenPerformance {
                 if (d.optString("dependency_type") == "required") d.optString("project_id").takeIf { it.isNotBlank() }?.let { install(it, depth + 1) }
             }
         }
-        PACK.filter { !(hasRenderer && it == "sodium") }.forEach { install(it, 0) }
+        PACK.filter { !(hasRenderer && it == "sodium") }.forEach { runCatching { install(it, 0) } }
         // offline or Modrinth down: try again next start instead of never
         if (reached) marker.writeText(System.currentTimeMillis().toString())
     }

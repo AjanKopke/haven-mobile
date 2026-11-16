@@ -326,7 +326,7 @@ fun RendererSettingsScreen(
                         position = CardPosition.Bottom,
                         unit = com.movtery.zalithlauncher.setting.MiscSettings.havenPerformance,
                         title = "Haven FPS paketi",
-                        summary = "Fabric profilinin ilk açılışında Sodium, Lithium, FerriteCore, ImmediatelyFast, Entity Culling ve ModernFix kurulur"
+                        summary = "Fabric profilinin ilk açılışında Lithium, FerriteCore, Entity Culling ve ModernFix kurulur"
                     )
                 }
             }

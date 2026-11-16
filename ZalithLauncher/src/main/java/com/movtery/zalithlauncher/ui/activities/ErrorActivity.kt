@@ -124,6 +124,15 @@ class ErrorActivity : BaseAppCompatActivity() {
             }
         }
 
+        // Haven: report it once (not again when the screen rotates)
+        if (savedInstanceState == null) {
+            if (errorMessage.crashType == CrashType.GAME_CRASH) {
+                com.movtery.zalithlauncher.haven.HavenCrash.game(this, errorMessage.logFile, errorMessage.message)
+            } else {
+                com.movtery.zalithlauncher.haven.HavenCrash.launcher(this, errorMessage.messageBody)
+            }
+        }
+
         val logFile = errorMessage.logFile
         val canRestart: Boolean = extras.getBoolean(BUNDLE_CAN_RESTART, true)
         val logExists = logFile.exists() && logFile.isFile

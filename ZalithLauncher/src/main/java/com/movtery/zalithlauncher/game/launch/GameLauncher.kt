@@ -271,10 +271,11 @@ class GameLauncher(
                 getCacioJavaArgs(screenSize, isJava8)
             }
         ).getAllArgs().toMutableList()
-        HavenMod.addTo(activity, version, launchArgs)
+        // Haven additions never stop a launch: whatever fails here, the game still starts as plain Zalith would
+        runCatching { HavenMod.addTo(activity, version, launchArgs) }
         withContext(Dispatchers.IO) { runCatching { HavenPerformance.ensure(version) } }
         // a Haven Play join waiting on this profile: straight into the friend's world
-        withContext(Dispatchers.IO) { HavenPlay.launchAddress(gameDirPath) }?.let { address ->
+        withContext(Dispatchers.IO) { runCatching { HavenPlay.launchAddress(gameDirPath) }.getOrNull() }?.let { address ->
             val port = address.substringAfterLast(':').toIntOrNull() ?: 25565
             val host = address.substringBeforeLast(':').removePrefix("[").removeSuffix("]")
             if (version.getVersionInfo()?.quickPlay?.isQuickPlayMultiplayer == true) {
