@@ -51,3 +51,11 @@ Başlatıcı açılışı, Basit ana sayfa, tek dokunuşla Minecraft 1.21.11 + F
 - Gerçek telefonda hiçbir şey denenmedi (cihaz/emülatör yok). Doğrulanan: CI derlemesi, WebSocket tünel protokolü.
 - Denenmesi gerekenler: Haven Play ile masaüstü dünyasına katılma (doğrudan + tünel), Google girişi, Haven mod'un Android'de açılması, FPS paketiyle hangi renderer'ın sorunsuz olduğu (Sodium bazı GL4ES sürümlerinde sorun çıkarabilir).
 - Telefondan dünya paylaşma (ev sahibi olma) yok; Zalith'in kendi "Terracotta" (EasyTier) çok oyunculusu duruyor.
+
+## 1.0.5 / 1.0.6 (2026-11-16)
+- **1.0.5 `HavenCrash.game`:** günlüğün sonu yalnız Minecraft çökme raporunun sistem bölümünü taşıyordu (ör. `processor: ~~ERROR~~ … LinuxOperatingSystemFFM` asıl neden değil; OSHI Android'de çalışmıyor). Artık günlükteki `Crash report saved to: …txt` ya da `hs_err_pid*.log` yolu açılıp ilk 60 satırı ("--- Çökme raporu ---") eklenir; başlık oradaki ilk gerçek hata satırı. `~~ERROR~~` satırları başlık olmaz.
+- **1.0.6 `_Download.Single.kt`:** mod indirirken sürüm seçme listesinde, dosyanın `platformGameVersion()` listesinde olmayan Minecraft sürümlü profiller soluk ve seçilemez ("Bu sürüme uygun değil"); açık profil uygun değilse önceden seçilmez; hiçbiri uygun değilse uyarı (`haven_mod_no_fitting_version`). Yalnız `PlatformClasses.MOD`; veri eksikse engellemez. Haven'ın kendi kurulumları (`HavenSimpleHome`, `HavenPerformance`) zaten sürüme göre arıyordu.
+- Açık: elle kopyalanan mod jar'ları ve önceden kurulmuş uyumsuz modlar (ör. bir oyuncunun 26.2 profilinde 1.21.11 `betterpingdisplay`) kontrol edilmiyor. Fikir: Fabric'in `HARD_DEP_INCOMPATIBLE_PRESELECTED <modid> … depends minecraft` satırı görülünce o modu `.disabled` yapıp söylemek (masaüstündeki `checkMods` benzeri).
+- 16 Kasım çökmelerinin çoğu kullanıcı içeriği: yanlış sürüm modu, Forge 1.20.1 modpack, 26.4 snapshot, modpack'te Mixin hatası, iki yerel JVM çökmesi (hs_err), iki "Could not create the Java Virtual Machine". Başlatıcıda bir Compose `IllegalStateException` (Samsung, Android 17) R8 yüzünden okunamadı.
+- `strings.xml`'de kesme işareti ters eğik çizgiyle kaçırılmalı; düz `can't` CI'da resource derlemesini düşürdü.
+- CI (public depo) çalışıyor; v1.0.5 ve v1.0.6 arm64 + armeabi-v7a yayında.
