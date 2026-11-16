@@ -16,6 +16,11 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # tag builds ship 64-bit and 32-bit ARM phones; manual runs build just the chosen arch
+        arch: ${{ fromJSON(github.event_name == 'workflow_dispatch' && format('["{0}"]', inputs.arch) || (startsWith(github.ref, 'refs/tags/v') && '["arm64","arm"]' || '["arm64"]')) }}
     env:
       VARIANT: ${{ startsWith(github.ref, 'refs/tags/v') && 'Release' || 'Debug' }}
       STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
@@ -69,41 +74,58 @@ jobs:
       - name: Build
         run: |
           chmod +x gradlew
-          ./gradlew ZalithLauncher:assemble$VARIANT -Darch=${{ inputs.arch || 'arm64' }}
+          ./gradlew ZalithLauncher:assemble$VARIANT -Darch=${{ matrix.arch }}
 
       - uses: actions/upload-artifact@v7
         with:
-          name: haven-mobile-${{ env.VARIANT }}-${{ inputs.arch || 'arm64' }}
+          name: haven-mobile-${{ env.VARIANT }}-${{ matrix.arch }}
           path: ZalithLauncher/build/outputs/apk/*/*.apk
 
+  # one job publishes every arch, so parallel builds don't race on the same release
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@v5
+        with:
+          pattern: haven-mobile-Release-*
+          path: apks
+          merge-multiple: true
+
       - name: Release
-        if: env.VARIANT == 'Release'
         uses: softprops/action-gh-release@v3
         with:
-          files: ZalithLauncher/build/outputs/apk/release/*.apk
+          files: apks/**/*.apk
           make_latest: true
 
       # the app's update check reads info/latest_version_md.json from main (GitHub contents API, base64)
       - name: Update info for the in-app updater
-        if: env.VARIANT == 'Release'
         run: |
           code=$(grep '^launcher_version_code=' ZalithLauncher/gradle.properties | cut -d= -f2 | tr -d '\r')
           name=$(grep '^launcher_version_name=' ZalithLauncher/gradle.properties | cut -d= -f2 | tr -d '\r')
-          apk=$(ls ZalithLauncher/build/outputs/apk/release/*.apk | head -1)
-          file=$(basename "$apk")
-          size=$(stat -c %s "$apk")
           notes=$(git tag -l --format='%(contents)' "$GITHUB_REF_NAME" | sed '/^-----BEGIN/,$d')
           [ -n "$notes" ] || notes="Haven Mobile $name"
+          find apks -name '*.apk' -printf '%f %s\n' > "$RUNNER_TEMP/apks.txt"
           git fetch -q origin main && git checkout -q -B main origin/main
           mkdir -p info
-          python3 - "$code" "$name" "$file" "$size" "$GITHUB_REF_NAME" "$notes" <<'PY'
+          python3 - "$code" "$name" "$GITHUB_REF_NAME" "$notes" "$RUNNER_TEMP/apks.txt" <<'PY'
           import json, sys, datetime
-          code, name, file, size, tag, notes = sys.argv[1:]
-          url = f"https://github.com/AjanKopke/haven-mobile/releases/download/{tag}/{file}"
+          code, name, tag, notes, listing = sys.argv[1:]
+          ABI = {"arm64-v8a": "arm64", "armeabi-v7a": "arm", "x86_64": "x86_64", "x86": "x86"}
+          files = []
+          for line in open(listing):
+              file, size = line.split()
+              arch = next((a for k, a in ABI.items() if file.endswith(f"-{k}.apk")), "all")
+              files.append({"file_name": file, "uri": f"https://github.com/AjanKopke/haven-mobile/releases/download/{tag}/{file}", "arch": arch, "size": int(size)})
+          files.sort(key=lambda f: f["arch"] != "arm64")
           body = {"language": "tr", "markdown": notes}
           data = {"code": int(code), "version": name, "created_at": datetime.datetime.utcnow().strftime("%Y-%m-%d"),
-                  "files": [{"file_name": file, "uri": url, "arch": "arm64", "size": int(size)}],
-                  "default_body": body, "bodies": [body, {"language": "en", "markdown": notes}]}
+                  "files": files, "default_body": body, "bodies": [body, {"language": "en", "markdown": notes}]}
           open("info/latest_version_md.json", "w").write(json.dumps(data, ensure_ascii=False, indent=2) + "\n")
           PY
           git config user.name "github-actions[bot]"

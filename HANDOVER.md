@@ -32,7 +32,7 @@ Haven Client'ın Android sürümü. Zalith Launcher 2'nin (GPL-3, PojavLauncher 
   İlk derleme ~8 dk, sonrakiler ~30 sn. `local.properties` (sdk.dir) yerelde, depoda değil.
 - **Emülatör:** AVD `Medium_Phone_API_37.0` (Android 17, x86_64). arm64 APK'yı Zalith reddediyor ("wrong version"), emülatör için `-Darch=x86_64`. CI'da da elle: workflow_dispatch `arch=x86_64`. Uygulama dili: `adb shell cmd locale set-app-locales net.havenclient.mobile.debug --locales tr-TR`. Oyunun kendisini emülatörde açma (ARM çevirisi + yazılım GPU, PC'yi yorar).
 - Sürüm derlemeleri GitHub Actions'ta: `.github/workflows/haven.yml`.
-- `main`'e push → arm64 Debug APK artifact. `vX.Y.Z` etiketi → imzalı arm64 Release APK + GitHub release.
+- `main`'e push → arm64 Debug APK artifact. `vX.Y.Z` etiketi → imzalı arm64 ve armeabi-v7a (32-bit) Release APK'ları + tek GitHub release (ayrı `release` işi). `info/latest_version_md.json` ikisini de listeler, uygulama içi güncelleme cihazın mimarisine göre seçer. Site: `download.php?os=android` → arm64, `?os=android-arm` → 32-bit. 32-bit'te Java 25 yok, 26.x sürümleri açılmaz.
 - Sürüm: `ZalithLauncher/gradle.properties` `launcher_version_code` (+1) ve `launcher_version_name`.
 - İmza anahtarı `havenhub\mobile-imza\haven-mobile.jks` + `keystore.properties` (depo dışında, kaybetme: aynı anahtar olmadan güncelleme kurulmaz). Secret'lar: `HAVEN_KEYSTORE_B64`, `STORE_PASSWORD`, `KEY_PASSWORD`, `CURSEFORGE_API_KEY`.
 - Push: `git -c credential.helper= push https://x-access-token:<github.txt>@github.com/AjanKopke/haven-mobile.git main vX.Y.Z`
