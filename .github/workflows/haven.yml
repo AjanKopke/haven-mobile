@@ -5,6 +5,10 @@ on:
     branches: [main]
     tags: ['v*']
   workflow_dispatch:
+    inputs:
+      arch:
+        description: 'arm64 for phones, x86_64 for the PC emulator'
+        default: arm64
 
 permissions:
   contents: write
@@ -65,11 +69,11 @@ jobs:
       - name: Build
         run: |
           chmod +x gradlew
-          ./gradlew ZalithLauncher:assemble$VARIANT -Darch=arm64
+          ./gradlew ZalithLauncher:assemble$VARIANT -Darch=${{ inputs.arch || 'arm64' }}
 
       - uses: actions/upload-artifact@v7
         with:
-          name: haven-mobile-${{ env.VARIANT }}
+          name: haven-mobile-${{ env.VARIANT }}-${{ inputs.arch || 'arm64' }}
           path: ZalithLauncher/build/outputs/apk/*/*.apk
 
       - name: Release
