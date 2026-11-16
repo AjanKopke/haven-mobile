@@ -28,17 +28,37 @@ import java.util.concurrent.TimeUnit
 object HavenCrash {
     private const val URL = "https://havenclient.net/lol/api/public/crash"
     private val client = OkHttpClient.Builder().callTimeout(15, TimeUnit.SECONDS).build()
-    private val CAUSE = Regex("(Exception|Error|FATAL|SIGSEGV|SIGABRT|Caused by)")
+    private val CAUSE = Regex("(Exception|Error|FATAL|SIGSEGV|SIGABRT|Caused by|Could not reserve|Out of memory|OutOfMemory)")
+    /** lines every game prints that never cause a crash (offline accounts can't reach Realms) */
+    private val HARMLESS = Regex("(Realms|SignedJWT|authorize you|Failed to fetch user properties|Narrator)", RegexOption.IGNORE_CASE)
+    /** "JVM ölümcül sinyal 6" and friends: the game died in native code, the Java log can't name a cause */
+    private val NATIVE = Regex("(sinyal|signal)", RegexOption.IGNORE_CASE)
 
     /** Launcher crash: the stack trace as it is. */
     fun launcher(context: Context, trace: String) = send(context, trace, "Başlatıcı")
 
-    /** Game crash: the end of the log, led by the first line that names a cause so the site can tell crashes apart. */
+    /**
+     * Game crash: the end of the log, led by the first line that names a cause so the site can tell crashes apart.
+     * A native signal leads with itself; "Could not create the Java Virtual Machine" keeps the JVM's reason with it.
+     */
     fun game(context: Context, log: File, exitMessage: String) {
         val tail = runCatching { log.readText().takeLast(7000) }.getOrDefault("")
-        val cause = tail.lineSequence().firstOrNull { CAUSE.containsMatchIn(it) }?.trim()?.take(200)
-        send(context, listOfNotNull(cause ?: exitMessage, if (cause != null) exitMessage else null, "", tail).joinToString("\n"), "Oyun")
+        val lines = tail.lines()
+        val cause = if (NATIVE.containsMatchIn(exitMessage)) null
+            else lines.firstOrNull { CAUSE.containsMatchIn(it) && !HARMLESS.containsMatchIn(it) }?.trim()?.take(200)
+        val jvm = lines.indexOfFirst { it.contains("Could not create the Java Virtual Machine") }
+            .takeIf { it >= 0 }?.let { i -> lines.subList(maxOf(0, i - 4), i + 1).joinToString("\n") }
+        send(context, listOfNotNull(cause ?: exitMessage, if (cause != null) exitMessage else null, setup(context), jvm, "", tail).joinToString("\n"), "Oyun")
     }
+
+    /** What the game ran with: architecture, phone RAM, heap, Java (no personal data). */
+    private fun setup(context: Context): String = runCatching {
+        val ram = com.movtery.zalithlauncher.utils.platform.getTotalMemory(context) / 1048576
+        val arch = if (com.movtery.zalithlauncher.utils.device.Architecture.is32BitsDevice) "32-bit" else "64-bit"
+        val heap = com.movtery.zalithlauncher.setting.GameSettings.ramAllocation.getValue() ?: 0
+        val java = com.movtery.zalithlauncher.setting.GameSettings.javaRuntime.getValue().ifEmpty { "otomatik" }
+        "Cihaz: $arch · RAM ${ram} MB · oyuna ayrılan ${heap} MB · Java $java"
+    }.getOrDefault("")
 
     private fun send(context: Context, trace: String, where: String) {
         val version = runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }.getOrNull() ?: "?"
