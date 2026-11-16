@@ -167,6 +167,7 @@ fun DownloadSingleOperation(
             val classes = operation.classes
 
             DownloadDialog(
+                platformVersion = operation.version,
                 dependencyEntries = dependencyEntries,
                 classes = classes,
                 installedProjects = installedProjects,
@@ -203,8 +204,20 @@ private fun rememberValidVersions(): State<List<Version>> {
     }
 }
 
+/**
+ * Haven: a mod file only runs on the Minecraft versions it was built for (a 1.21.11 mod crashes a 26.2 profile), so
+ * profiles of other versions can't be picked. Missing data on either side never blocks.
+ */
+private fun PlatformVersion.fitsGame(classes: PlatformClasses, version: Version): Boolean {
+    if (classes != PlatformClasses.MOD) return true
+    val supported = platformGameVersion()
+    val mc = version.getVersionInfo()?.minecraftVersion
+    return supported.isEmpty() || mc.isNullOrBlank() || mc in supported
+}
+
 @Composable
 private fun DownloadDialog(
+    platformVersion: PlatformVersion,
     dependencyEntries: List<DependencyEntry>,
     classes: PlatformClasses,
     installedProjects: Map<Platform, Set<String>>,
@@ -216,6 +229,8 @@ private fun DownloadDialog(
     val version by VersionsManager.currentVersion.collectAsStateWithLifecycle()
     val version0 = version
 
+    val fits: (Version) -> Boolean = { platformVersion.fitsGame(classes, it) }
+
     if (version0 == null || versions.isEmpty()) {
         SimpleAlertDialog(
             title = stringResource(R.string.generic_warning),
@@ -223,9 +238,16 @@ private fun DownloadDialog(
             confirmText = stringResource(R.string.generic_got_it),
             onDismiss = onDismiss
         )
+    } else if (versions.none(fits)) {
+        SimpleAlertDialog(
+            title = stringResource(R.string.generic_warning),
+            text = stringResource(R.string.haven_mod_no_fitting_version, platformVersion.platformGameVersion().joinToString(", ")),
+            confirmText = stringResource(R.string.generic_got_it),
+            onDismiss = onDismiss
+        )
     } else {
         //当前选择的版本，将会把资源安装到该版本
-        val selectedVersions = remember { mutableStateListOf(version0) }
+        val selectedVersions = remember { mutableStateListOf<Version>().apply { if (fits(version0)) add(version0) } }
 
         //拆分依赖项目、可选项目
         val dependencies = remember(dependencyEntries) {
@@ -367,7 +389,8 @@ private fun DownloadDialog(
                                     modifier = Modifier.fadeEdge(state = listState),
                                     versions = versions,
                                     selectedVersions = selectedVersions,
-                                    onVersionSelected = { selectedVersions.add(it) },
+                                    fits = fits,
+                                    onVersionSelected = { if (fits(it)) selectedVersions.add(it) },
                                     onVersionUnSelected = { selectedVersions.remove(it) },
                                     listState = listState
                                 )
@@ -423,6 +446,7 @@ private fun ChoseGameVersionLayout(
     modifier: Modifier = Modifier,
     versions: List<Version>,
     selectedVersions: List<Version>,
+    fits: (Version) -> Boolean,
     onVersionSelected: (Version) -> Unit,
     onVersionUnSelected: (Version) -> Unit,
     listState: LazyListState
@@ -441,6 +465,7 @@ private fun ChoseGameVersionLayout(
                 SelectVersionListItem(
                     modifier = Modifier.fillMaxWidth(),
                     version = version,
+                    fits = fits(version),
                     checked = selectedVersions.contains(version),
                     onChose = {
                         onVersionSelected(version)
@@ -458,6 +483,7 @@ private fun ChoseGameVersionLayout(
 private fun SelectVersionListItem(
     modifier: Modifier = Modifier,
     version: Version,
+    fits: Boolean,
     checked: Boolean,
     onChose: () -> Unit,
     onCancel: () -> Unit,
@@ -466,10 +492,11 @@ private fun SelectVersionListItem(
     contentColor: Color = onItemColor(),
 ) {
     Surface(
-        modifier = modifier,
+        modifier = if (fits) modifier else modifier.alpha(0.45f),
         shape = shape,
         color = color,
         contentColor = contentColor,
+        enabled = fits,
         onClick = {
             if (checked) {
                 onCancel()
@@ -484,6 +511,7 @@ private fun SelectVersionListItem(
         ) {
             Checkbox(
                 checked = checked,
+                enabled = fits,
                 onCheckedChange = {
                     if (it) {
                         onChose()
@@ -492,10 +520,15 @@ private fun SelectVersionListItem(
                     }
                 }
             )
-            CommonVersionInfoLayout(
-                modifier = Modifier.weight(1f),
-                version = version
-            )
+            Column(modifier = Modifier.weight(1f)) {
+                CommonVersionInfoLayout(version = version)
+                if (!fits) {
+                    Text(
+                        text = stringResource(R.string.haven_mod_wrong_version),
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                }
+            }
         }
     }
 }

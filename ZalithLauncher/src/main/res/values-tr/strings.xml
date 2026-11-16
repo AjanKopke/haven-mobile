@@ -1239,4 +1239,6 @@
     <string name="guide_joystick_events_lock_text4">Tetikleme etkinliklerini düzenlemek için düğmeye dokunun</string>
     <string name="guide_joystick_events_events_text1">Tetiklenebilen etkinlikler normal düğmelerle aynıdır, özgürlük çok yüksektir</string>
     <string name="guide_joystick_events_events_text2">Sadece oyunu kontrol etmek istiyorsanız “Tuş” bölümündeki gerçek tuş atamalarını düzenlemeniz yeterlidir</string>
+    <string name="haven_mod_no_fitting_version">Bu mod %1$s için yapılmış. Yüklü sürümlerinde oyunu çökertir, bu yüzden kurulamaz. Önce bu sürümlerden birini kur.</string>
+    <string name="haven_mod_wrong_version">Bu sürüme uygun değil</string>
 </resources>
