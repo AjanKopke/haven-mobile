@@ -48,7 +48,23 @@ object HavenCrash {
             else lines.firstOrNull { CAUSE.containsMatchIn(it) && !HARMLESS.containsMatchIn(it) }?.trim()?.take(200)
         val jvm = lines.indexOfFirst { it.contains("Could not create the Java Virtual Machine") }
             .takeIf { it >= 0 }?.let { i -> lines.subList(maxOf(0, i - 4), i + 1).joinToString("\n") }
-        send(context, listOfNotNull(cause ?: exitMessage, if (cause != null) exitMessage else null, setup(context), jvm, "", tail).joinToString("\n"), "Oyun")
+        // the log tail only holds the end of Minecraft's crash report (system details); its head names the crash
+        val report = reportHead(tail)
+        val reportCause = report?.lineSequence()?.firstOrNull { CAUSE.containsMatchIn(it) && !HARMLESS.containsMatchIn(it) && !it.contains("~~ERROR~~") }?.trim()?.take(200)
+        val lead = reportCause ?: cause ?: exitMessage
+        val head = listOfNotNull(lead, if (lead != exitMessage) exitMessage else null, setup(context), jvm).joinToString("\n")
+        val body = listOfNotNull(report?.let { "--- Çökme raporu ---\n$it" }, "--- Oyun günlüğünün sonu ---\n$tail").joinToString("\n\n")
+        send(context, "$head\n\n$body".take(8000), "Oyun")
+    }
+
+    /** First lines of the crash report or hs_err file the log points to (description, exception, stack). */
+    private fun reportHead(tail: String): String? {
+        val path = Regex("Crash report saved to:\\s*(?:#@!@#\\s*)?(\\S.*?\\.txt)").find(tail)?.groupValues?.get(1)
+            ?: Regex("(/\\S*hs_err_pid\\d+\\.log)").find(tail)?.groupValues?.get(1)
+            ?: return null
+        return runCatching {
+            File(path.trim()).bufferedReader().use { r -> r.lineSequence().filter { it.isNotBlank() }.take(60).joinToString("\n") }
+        }.getOrNull()?.take(3500)
     }
 
     /** What the game ran with: architecture, phone RAM, heap, Java (no personal data). */
