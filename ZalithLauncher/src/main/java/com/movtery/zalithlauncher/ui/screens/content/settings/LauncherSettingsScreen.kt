@@ -162,9 +162,17 @@ fun LauncherSettingsScreen(
                         updateOperation = { customColorOperation = it }
                     )
 
-                    EnumSettingsCard(
+                    SwitchSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
                         position = CardPosition.Top,
+                        unit = com.movtery.zalithlauncher.setting.MiscSettings.havenSimpleUi,
+                        title = "Basit arayüz",
+                        summary = "Ana sayfada yalnızca hesap, Minecraft, OYNA ve arkadaşla oynama görünür"
+                    )
+
+                    EnumSettingsCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         unit = LauncherSettings.launcherColorTheme,
                         title = stringResource(R.string.settings_launcher_color_theme_title),
                         summary = stringResource(R.string.settings_launcher_color_theme_summary),

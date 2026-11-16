@@ -136,15 +136,34 @@ fun LauncherScreen(
     onOpenLink: (String) -> Unit,
     startGuideOnce: (GuideKeys.Keys) -> Unit,
 ) {
-    LaunchedEffect(Unit) {
-        //发起新手引导
-        startGuideOnce(GuideKeys.Main)
+    val simpleUi = com.movtery.zalithlauncher.setting.MiscSettings.havenSimpleUi.state
+    LaunchedEffect(simpleUi) {
+        //发起新手引导 (Haven: the guide points at the full home's parts, so only there)
+        if (!simpleUi) startGuideOnce(GuideKeys.Main)
     }
 
     BaseScreen(
         screenKey = NormalNavKey.LauncherMain,
         currentKey = backStackViewModel.mainScreen.currentKey
     ) { isVisible ->
+        if (simpleUi) {
+            com.movtery.zalithlauncher.haven.HavenSimpleHome(
+                onAccounts = {
+                    backStackViewModel.mainScreen.navigateTo(screenKey = NormalNavKey.AccountManager(FirstLoginMenu.NONE))
+                },
+                onVersions = {
+                    backStackViewModel.mainScreen.navigateTo(NormalNavKey.VersionsManager)
+                },
+                onAddMods = {
+                    backStackViewModel.navigateToDownload(backStackViewModel.downloadModScreen)
+                },
+                onLaunchGame = onLaunchGame,
+                onDetailed = {
+                    com.movtery.zalithlauncher.setting.MiscSettings.havenSimpleUi.save(false)
+                }
+            )
+            return@BaseScreen
+        }
         val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
         val dockedSide = LauncherSettings.launcherActionMenuSide.state
         val dragState = rememberActionMenuDragState(

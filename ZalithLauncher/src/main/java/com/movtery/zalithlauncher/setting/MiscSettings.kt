@@ -29,6 +29,11 @@ object MiscSettings : SettingsRegistry() {
     val havenPerformance = boolSetting("havenPerformance", true)
 
     /**
+     * Haven: the simple home (account, Minecraft, play, join a friend); off shows Zalith's full home
+     */
+    val havenSimpleUi = boolSetting("havenSimpleUi", true)
+
+    /**
      * 当前选择的账号
      */
     val currentAccount = stringSetting("currentAccount", "")
