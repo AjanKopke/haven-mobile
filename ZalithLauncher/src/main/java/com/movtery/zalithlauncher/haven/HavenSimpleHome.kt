@@ -88,56 +88,59 @@ fun HavenSimpleHome(
         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Column(
-            modifier = Modifier.weight(1.15f).verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            Text(
-                text = account?.username?.let { "Merhaba, $it!" } ?: "Haven'a hoş geldin!",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
-            )
-
-            Step(1, "Hesabın", hasAccount,
-                if (hasAccount) "Oyundaki adın: ${account?.username}" else "Oynamak için önce giriş yap. Google hesabınla tek dokunuşta girebilirsin."
+        // the steps scroll, OYNA stays on screen: a child who doesn't think of scrolling still finds it
+        Column(modifier = Modifier.weight(1.15f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Column(
+                modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                if (!hasAccount) {
-                    Button(onClick = { HavenAccount.signIn(context) }) { Text("Google ile gir") }
-                    OutlinedButton(onClick = onAccounts) { Text("Başka yolla gir") }
-                } else {
-                    TextButton(onClick = onAccounts) { Text("Hesabı değiştir") }
-                }
-            }
+                Text(
+                    text = account?.username?.let { "Merhaba, $it!" } ?: "Haven'a hoş geldin!",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold
+                )
 
-            Step(2, "Minecraft", hasGame,
-                when {
-                    hasGame -> "Hazır: ${version?.getVersionName()}"
-                    installStatus != null -> installStatus!!
-                    else -> "Telefonunda henüz Minecraft yok. Bir kez kurman yeter, gerisini Haven halleder."
+                Step(1, "Hesabın", hasAccount,
+                    if (hasAccount) "Oyundaki adın: ${account?.username}" else "Oynamak için önce giriş yap. Google hesabınla tek dokunuşta girebilirsin."
+                ) {
+                    if (!hasAccount) {
+                        Button(onClick = { HavenAccount.signIn(context) }) { Text("Google ile gir") }
+                        OutlinedButton(onClick = onAccounts) { Text("Başka yolla gir") }
+                    } else {
+                        TextButton(onClick = onAccounts) { Text("Değiştir") }
+                    }
                 }
-            ) {
-                if (!hasGame) {
-                    Button(
-                        enabled = !installing,
-                        onClick = {
-                            installing = true
-                            scope.launch {
-                                try {
-                                    val (pack, name) = HavenQuickStart.pack(context) { installStatus = it }
-                                    installStatus = "Kuruluyor: $name. Bitince OYNA'ya bas."
-                                    (context as? MainActivity)?.modpackImportViewModel?.import(context, Uri.fromFile(pack))
-                                } catch (e: Exception) {
-                                    installStatus = e.message ?: "Kurulamadı, internetini kontrol edip tekrar dene"
-                                } finally {
-                                    installing = false
+
+                Step(2, "Minecraft", hasGame,
+                    when {
+                        hasGame -> "Hazır: ${version?.getVersionName()}"
+                        installStatus != null -> installStatus!!
+                        else -> "Telefonunda henüz Minecraft yok. Bir kez kurman yeter, gerisini Haven halleder."
+                    }
+                ) {
+                    if (!hasGame) {
+                        Button(
+                            enabled = !installing,
+                            onClick = {
+                                installing = true
+                                scope.launch {
+                                    try {
+                                        val (pack, name) = HavenQuickStart.pack(context) { installStatus = it }
+                                        installStatus = "Kuruluyor: $name. Bitince OYNA'ya bas."
+                                        (context as? MainActivity)?.modpackImportViewModel?.import(context, Uri.fromFile(pack))
+                                    } catch (e: Exception) {
+                                        installStatus = e.message ?: "Kurulamadı, internetini kontrol edip tekrar dene"
+                                    } finally {
+                                        installing = false
+                                    }
                                 }
                             }
-                        }
-                    ) { Text(if (installing) "Hazırlanıyor…" else "Minecraft'ı kur") }
-                    TextButton(onClick = onVersions) { Text("Sürümü ben seçeyim") }
-                } else {
-                    Button(onClick = onAddMods) { Text("Mod ekle") }
-                    TextButton(onClick = onVersions) { Text("Sürümü değiştir") }
+                        ) { Text(if (installing) "Hazırlanıyor…" else "Minecraft'ı kur") }
+                        TextButton(onClick = onVersions) { Text("Sürümü ben seçeyim") }
+                    } else {
+                        Button(onClick = onAddMods) { Text("Mod ekle") }
+                        TextButton(onClick = onVersions) { Text("Sürüm") }
+                    }
                 }
             }
 
@@ -180,7 +183,11 @@ private fun Step(number: Int, title: String, done: Boolean, text: String, action
         shape = MaterialTheme.shapes.extraLarge,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
     ) {
-        Row(modifier = Modifier.padding(14.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = if (done) 8.dp else 14.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = if (done) Alignment.CenterVertically else Alignment.Top
+        ) {
             Box(
                 modifier = Modifier.size(34.dp).background(
                     if (done) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondaryContainer,
@@ -194,10 +201,19 @@ private fun Step(number: Int, title: String, done: Boolean, text: String, action
                     color = if (done) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondaryContainer
                 )
             }
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(text = title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text(text = text, style = MaterialTheme.typography.bodyMedium)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) { actions() }
+            // a finished step is one line (its buttons on the right), so OYNA and the next step fit on a phone
+            if (done) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(text = title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(text = text, style = MaterialTheme.typography.bodyMedium)
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) { actions() }
+            } else {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(text = title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(text = text, style = MaterialTheme.typography.bodyMedium)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) { actions() }
+                }
             }
         }
     }
