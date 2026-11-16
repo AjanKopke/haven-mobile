@@ -3082,6 +3082,6 @@
     <string name="guide_joystick_events_events_text1">The triggerable events are the same as those of regular buttons, so you have plenty of freedom here</string>
     <!-- Closing line of the guide card about editing actual key bindings in the Key section -->
     <string name="guide_joystick_events_events_text2">If you only want to control the game, just edit the actual key bindings in the \"Key\" section</string>
-    <string name="haven_mod_no_fitting_version">This mod is made for %1$s. It would crash your installed versions, so it can't be installed. Install one of those versions first.</string>
+    <string name="haven_mod_no_fitting_version">This mod is made for %1$s. It would crash your installed versions, so it cannot be installed. Install one of those versions first.</string>
     <string name="haven_mod_wrong_version">Not for this version</string>
 </resources>
