@@ -1,33 +1,33 @@
 {
-  "code": 7,
-  "version": "1.0.6",
-  "created_at": "2026-11-16",
+  "code": 8,
+  "version": "1.0.7",
+  "created_at": "2026-11-17",
   "files": [
     {
-      "file_name": "HavenMobile-1.0.6-arm64-v8a.apk",
-      "uri": "https://github.com/AjanKopke/haven-mobile/releases/download/v1.0.6/HavenMobile-1.0.6-arm64-v8a.apk",
+      "file_name": "HavenMobile-1.0.7-arm64-v8a.apk",
+      "uri": "https://github.com/AjanKopke/haven-mobile/releases/download/v1.0.7/HavenMobile-1.0.7-arm64-v8a.apk",
       "arch": "arm64",
-      "size": 189984995
+      "size": 189985775
     },
     {
-      "file_name": "HavenMobile-1.0.6-armeabi-v7a.apk",
-      "uri": "https://github.com/AjanKopke/haven-mobile/releases/download/v1.0.6/HavenMobile-1.0.6-armeabi-v7a.apk",
+      "file_name": "HavenMobile-1.0.7-armeabi-v7a.apk",
+      "uri": "https://github.com/AjanKopke/haven-mobile/releases/download/v1.0.7/HavenMobile-1.0.7-armeabi-v7a.apk",
       "arch": "arm",
-      "size": 181537632
+      "size": 181538396
     }
   ],
   "default_body": {
     "language": "tr",
-    "markdown": "1.0.6: fix apostrophe in new string resource"
+    "markdown": "1.0.7: Haven Play join retries a mod download (asks the host's list again) instead of failing on the first broken file"
   },
   "bodies": [
     {
       "language": "tr",
-      "markdown": "1.0.6: fix apostrophe in new string resource"
+      "markdown": "1.0.7: Haven Play join retries a mod download (asks the host's list again) instead of failing on the first broken file"
     },
     {
       "language": "en",
-      "markdown": "1.0.6: fix apostrophe in new string resource"
+      "markdown": "1.0.7: Haven Play join retries a mod download (asks the host's list again) instead of failing on the first broken file"
     }
   ]
 }
