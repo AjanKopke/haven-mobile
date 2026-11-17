@@ -1,33 +1,33 @@
 {
-  "code": 8,
-  "version": "1.0.7",
+  "code": 10,
+  "version": "1.0.9",
   "created_at": "2026-11-17",
   "files": [
     {
-      "file_name": "HavenMobile-1.0.7-arm64-v8a.apk",
-      "uri": "https://github.com/AjanKopke/haven-mobile/releases/download/v1.0.7/HavenMobile-1.0.7-arm64-v8a.apk",
+      "file_name": "HavenMobile-1.0.9-arm64-v8a.apk",
+      "uri": "https://github.com/AjanKopke/haven-mobile/releases/download/v1.0.9/HavenMobile-1.0.9-arm64-v8a.apk",
       "arch": "arm64",
-      "size": 189985775
+      "size": 189985595
     },
     {
-      "file_name": "HavenMobile-1.0.7-armeabi-v7a.apk",
-      "uri": "https://github.com/AjanKopke/haven-mobile/releases/download/v1.0.7/HavenMobile-1.0.7-armeabi-v7a.apk",
+      "file_name": "HavenMobile-1.0.9-armeabi-v7a.apk",
+      "uri": "https://github.com/AjanKopke/haven-mobile/releases/download/v1.0.9/HavenMobile-1.0.9-armeabi-v7a.apk",
       "arch": "arm",
-      "size": 181538396
+      "size": 181538248
     }
   ],
   "default_body": {
     "language": "tr",
-    "markdown": "1.0.7: Haven Play join retries a mod download (asks the host's list again) instead of failing on the first broken file"
+    "markdown": "1.0.9: Haven Play auto-join still works on any launch within 30 min of Katıl (a closed or crashed first launch used it up)"
   },
   "bodies": [
     {
       "language": "tr",
-      "markdown": "1.0.7: Haven Play join retries a mod download (asks the host's list again) instead of failing on the first broken file"
+      "markdown": "1.0.9: Haven Play auto-join still works on any launch within 30 min of Katıl (a closed or crashed first launch used it up)"
     },
     {
       "language": "en",
-      "markdown": "1.0.7: Haven Play join retries a mod download (asks the host's list again) instead of failing on the first broken file"
+      "markdown": "1.0.9: Haven Play auto-join still works on any launch within 30 min of Katıl (a closed or crashed first launch used it up)"
     }
   ]
 }
