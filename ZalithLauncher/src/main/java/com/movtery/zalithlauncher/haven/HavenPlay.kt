@@ -253,13 +253,15 @@ object HavenPlay {
     /**
      * Runs in the game process right before the JVM starts: when the profile was set up by a join that hasn't been
      * used yet, finds the way to the host again (direct address or a bridge that lives as long as the game) and
-     * returns the address for the game's auto-join. The join flag is cleared so a later plain start stays plain.
+     * returns the address for the game's auto-join. The join flag is cleared, so a plain start more than 30 min after Katıl stays plain.
      */
     fun launchAddress(gameDir: File): String? {
         val file = File(gameDir, JOIN_FILE)
         if (!file.exists()) return null
         val o = runCatching { JSONObject(file.readText()) }.getOrNull() ?: return null
-        if (!o.optBoolean("join")) return null
+        // A launch that crashed or was closed before the world opened used up the flag; still join within 30 min of Katıl
+        val fresh = System.currentTimeMillis() - o.optLong("at", 0) < 30 * 60_000
+        if (!o.optBoolean("join") && !fresh) return null
         o.put("join", false)
         runCatching { file.writeText(o.toString(2)) }
         val direct = o.optJSONArray("direct") ?: JSONArray()
