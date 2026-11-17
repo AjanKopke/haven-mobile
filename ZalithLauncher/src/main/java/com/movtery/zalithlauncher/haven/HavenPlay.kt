@@ -218,12 +218,28 @@ object HavenPlay {
                 zip.putNextEntry(ZipEntry("overrides/$JOIN_FILE"))
                 zip.write(joinJson(manifest, invite, friend).toByteArray())
                 zip.closeEntry()
-                manifest.mods.forEachIndexed { i, mod ->
-                    onStatus("Modlar alınıyor ${i + 1}/${manifest.mods.size}: ${mod.name}")
+                val part = File(PathManager.DIR_CACHE, "haven-play-mod.part")
+                manifest.mods.forEachIndexed { i, first ->
+                    var mod = first
+                    var tries = 0
+                    while (true) {
+                        onStatus("Modlar alınıyor ${i + 1}/${manifest.mods.size}: ${mod.name}" + if (tries > 0) " (tekrar deneniyor)" else "")
+                        try {
+                            part.outputStream().buffered().use { out -> downloadMod(route.host, route.port, mod, out) { n -> got += n } }
+                            break
+                        } catch (e: Exception) {
+                            if (++tries >= 3) throw e
+                            Logger.warning(TAG, "Mod ${mod.name} failed (try $tries), asking the host again", e)
+                            // a jar that changed while the host's game runs (Essential rewrites its own) gets a new
+                            // hash in the host's list, and a tunnel can drop mid-file: fetch the list again and retry
+                            fetchManifest(route.host, route.port, 10_000)?.mods?.firstOrNull { it.name == mod.name }?.let { mod = it }
+                        }
+                    }
                     zip.putNextEntry(ZipEntry("overrides/mods/${mod.name.substringAfterLast('/')}"))
-                    downloadMod(route.host, route.port, mod, zip) { got += it }
+                    part.inputStream().use { it.copyTo(zip) }
                     zip.closeEntry()
                 }
+                part.delete()
             }
             Logger.info(TAG, "Pack for ${manifest.version} ${manifest.loader}: ${manifest.mods.size} mods, $got/$total bytes")
             HavenJoinResult.Import(pack, name)
