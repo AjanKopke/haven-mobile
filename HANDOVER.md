@@ -4,6 +4,8 @@ _Başlangıç: 2026-11-15_
 
 Haven Client'ın Android sürümü. Zalith Launcher 2'nin (GPL-3, PojavLauncher tabanlı) çatalı. Java Edition'ı telefonda çalıştıran kısım (JVM, LWJGL, renderer'lar, dokunmatik kontroller) Zalith'ten geliyor; Haven'a özel her şey `ZalithLauncher/src/main/java/com/movtery/zalithlauncher/haven/` altında.
 
+- **1.0.7 (2026-11-17):** Haven Play katılımında bir mod indirmesi bozulursa (tünel koptu ya da ev sahibinin oyunu jar'ı değiştirdi, Essential gibi) telefon ev sahibinin listesini yeniden alıp 3 kereye kadar dener; her mod önce `cache/haven-play-mod.part`'a iner, sonra pakete yazılır. Önce ilk hatada "Mod dosyası eksik geldi" deyip duruyordu (bir oyuncu "fabric-language-kotlin eksik" gördü). Sadece derlendi, gerçek katılımla denenmedi.
+- **Test emülatörü:** `Haven_Test_API_30` (Android 11, ARM çevirili): yayındaki arm64 APK kuruluyor.
 ## Depo ve lisans
 - Kaynak: `havenhub\mobile`, GitHub `AjanKopke/haven-mobile` (**public**). GPL-3, APK dağıtıldığı için kaynağın açık olmasını şart koşuyor. Masaüstü kaynağı (`nova-launcher-src`) özel kalıyor, bu depoya ondan kod kopyalanmadı (yalnızca davet kodu biçimi ve Gate protokolü Kotlin'e yeniden yazıldı).
 - `upstream` remote'u = Zalith. Güncelleme almak için: `git fetch upstream` + merge (geçmiş orphan commit ile başladı, merge'de `--allow-unrelated-histories` gerekir).
