@@ -30,6 +30,9 @@ import com.movtery.zalithlauncher.BuildKeys
 import com.movtery.zalithlauncher.context.GlobalContext
 import com.movtery.zalithlauncher.game.launch.LogName
 import com.movtery.zalithlauncher.game.path.getVersionsHome
+import com.movtery.zalithlauncher.game.renderer.RendererInterface
+import com.movtery.zalithlauncher.game.renderer.Renderers
+import com.movtery.zalithlauncher.game.version.installed.utils.isBiggerVer
 import com.movtery.zalithlauncher.game.support.touch_controller.VibrationHandler
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.ControlSettings
@@ -209,7 +212,19 @@ class Version(
 
     private fun String.getValueOrDefault(default: String): String = this.takeIf { it.isNotEmpty() } ?: default
 
-    fun getRenderer(): String = versionConfig.renderer.getValueOrDefault(RendererSettings.renderer.getValue())
+    fun getRenderer(): String {
+        val chosen = versionConfig.renderer.getValueOrDefault(RendererSettings.renderer.getValue())
+        val mcVer = getVersionInfo()?.minecraftVersion ?: return chosen
+        val all = Renderers.getRenderers()
+        if (all.isEmpty()) return chosen
+        val fits: (RendererInterface) -> Boolean = { r ->
+            r.getMaxMCVersion()?.let { !mcVer.isBiggerVer(it) } ?: true
+        }
+        // Haven: the default NG-GL4ES (and most others) stop at 26.3 snapshots, so 26.3+ silently fails to render; use the first renderer that fits instead
+        val current = all.find { it.getUniqueIdentifier() == chosen } ?: all[0]
+        if (fits(current)) return chosen
+        return all.firstOrNull(fits)?.getUniqueIdentifier() ?: chosen
+    }
 
     fun isSfpewPluginLayerEnabled(): Boolean = versionConfig.isSfpewPluginLayerEnabled()
 
