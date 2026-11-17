@@ -124,7 +124,7 @@ jobs:
               files.append({"file_name": file, "uri": f"https://github.com/AjanKopke/haven-mobile/releases/download/{tag}/{file}", "arch": arch, "size": int(size)})
           files.sort(key=lambda f: f["arch"] != "arm64")
           body = {"language": "tr", "markdown": notes}
-          data = {"code": int(code), "version": name, "created_at": datetime.datetime.utcnow().strftime("%Y-%m-%d"),
+          data = {"code": int(code), "version": name, "created_at": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
                   "files": files, "default_body": body, "bodies": [body, {"language": "en", "markdown": notes}]}
           open("info/latest_version_md.json", "w").write(json.dumps(data, ensure_ascii=False, indent=2) + "\n")
           PY
