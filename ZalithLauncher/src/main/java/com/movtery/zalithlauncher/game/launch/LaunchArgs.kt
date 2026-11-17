@@ -184,8 +184,9 @@ class LaunchArgs(
         val argsList: MutableList<String> = ArrayList()
 
         if (account.isLocalAccount()) {
-            if (account.hasSkinFile) {
-                //该离线账号拥有本地皮肤，启用离线yggdrasil服务器
+            // Haven: always, not only with a skin: without it an offline account's join goes to Mojang and a
+            // Haven Play host's online-mode LAN world answers "Geçersiz oturum"
+            run {
                 offlineServer.start()
                 offlineServer.addCharacter(account)
                 offlineServer.getPort()?.let { port ->
