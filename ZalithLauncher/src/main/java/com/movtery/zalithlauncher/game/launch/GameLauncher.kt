@@ -273,6 +273,7 @@ class GameLauncher(
         ).getAllArgs().toMutableList()
         // Haven additions never stop a launch: whatever fails here, the game still starts as plain Zalith would
         runCatching { HavenMod.addTo(activity, version, launchArgs) }
+        runCatching { com.movtery.zalithlauncher.haven.HavenCrash.played(activity, version.getVersionInfo()?.minecraftVersion ?: "") }
         withContext(Dispatchers.IO) { runCatching { HavenPerformance.ensure(version) } }
         // a Haven Play join waiting on this profile: straight into the friend's world
         withContext(Dispatchers.IO) { runCatching { HavenPlay.launchAddress(gameDirPath) }.getOrNull() }?.let { address ->

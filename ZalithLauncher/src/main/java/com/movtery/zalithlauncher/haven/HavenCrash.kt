@@ -34,6 +34,24 @@ object HavenCrash {
     /** "JVM ölümcül sinyal 6" and friends: the game died in native code, the Java log can't name a cause */
     private val NATIVE = Regex("(sinyal|signal)", RegexOption.IGNORE_CASE)
 
+    /**
+     * "A game started" for the admin statistics (mobile players per day): a random id made once per install and the
+     * Minecraft version, nothing else. Never blocks or fails the launch.
+     */
+    fun played(context: Context, mc: String) {
+        val prefs = context.getSharedPreferences("haven", Context.MODE_PRIVATE)
+        val id = prefs.getString("install_id", null) ?: java.util.UUID.randomUUID().toString().also { prefs.edit().putString("install_id", it).apply() }
+        val body = JSONObject().put("id", id).put("mc", mc.take(24)).toString()
+        Thread {
+            runCatching {
+                client.newCall(
+                    Request.Builder().url("https://havenclient.net/lol/api/public/mobile-play").post(body.toRequestBody("application/json".toMediaType()))
+                        .header("User-Agent", "HavenMobile").build()
+                ).execute().close()
+            }
+        }.start()
+    }
+
     /** Launcher crash: the stack trace as it is. */
     fun launcher(context: Context, trace: String) = send(context, trace, "Başlatıcı")
 
