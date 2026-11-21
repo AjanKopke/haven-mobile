@@ -498,7 +498,7 @@ fun LoginMenuDialog(
                             val havenContext = androidx.compose.ui.platform.LocalContext.current
                             LoginItem(
                                 modifier = Modifier.fillMaxWidth(),
-                                title = "Google (Haven hesabı)",
+                                title = "Google (Haven hesabı, 13+ yaş; Kullanım Koşulları ve Gizlilik kabul edilir)",
                                 onClick = {
                                     com.movtery.zalithlauncher.haven.HavenAccount.signIn(havenContext)
                                     onDismissRequest()

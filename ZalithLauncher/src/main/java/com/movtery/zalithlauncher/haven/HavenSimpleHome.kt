@@ -101,7 +101,7 @@ fun HavenSimpleHome(
                 )
 
                 Step(1, "Hesabın", hasAccount,
-                    if (hasAccount) "Oyundaki adın: ${account?.username}" else "Oynamak için önce giriş yap. Google hesabınla tek dokunuşta girebilirsin."
+                    if (hasAccount) "Oyundaki adın: ${account?.username}" else "Oynamak için önce giriş yap. Google ile girmek Haven hesabı açar: Kullanım Koşulları ve Gizlilik Politikası'nı (havenclient.net/lol/legal) kabul etmiş olursun, 13 yaşından büyük olmalısın. Daha küçüksen \"Başka yolla gir\" ile sadece bir isim seç."
                 ) {
                     if (!hasAccount) {
                         Button(onClick = { HavenAccount.signIn(context) }) { Text("Google ile gir") }
