@@ -166,11 +166,28 @@ class LaunchArgs(
         val versionDir = lwjglVersionDir(lwjglVersion)
         val dir = File(PathManager.DIR_COMPONENTS, "lwjgl/$versionDir")
         val isLwjgl2 = lwjglVersion in 1..299
+        val dropped = moduleClashJars()
         return dir.listFiles { file -> file.name.endsWith(".jar") }
             ?.sortedBy { file -> lwjglJarOrder(file.name, versionDir, isLwjgl2) }
             ?.filter { file -> isLwjgl2 || file.name != "lwjgl-lwjglx.jar" }
+            ?.filter { file -> file.name.removeSuffix(".jar") !in dropped }
             ?.joinToString(":") { it.absolutePath }
             ?: ""
+    }
+
+    /**
+     * Haven: Forge/NeoForge (BootstrapLauncher, recognised by -DignoreList) turn every classpath jar into a module.
+     * Mods such as Super Resolution ship their own lwjgl-vulkan/vma, so a second org.lwjgl.vulkan from our runtime
+     * stops the game with "reads more than one module named org.lwjgl.vulkan". The vanilla game doesn't ship these,
+     * so drop the ones its manifest doesn't list.
+     */
+    private fun moduleClashJars(): Set<String> {
+        val modular = gameManifest.arguments?.jvm?.any { (it as? String)?.startsWith("-DignoreList=") == true } == true
+        if (!modular) return emptySet()
+        val vanilla = gameManifest.libraries.mapNotNull { lib ->
+            lib.name?.split(":")?.takeIf { it.size >= 2 && it[0] == "org.lwjgl" }?.get(1)
+        }.toSet()
+        return setOf("lwjgl-vulkan", "lwjgl-vma", "lwjgl-shaderc", "lwjgl-spvc") - vanilla
     }
 
     private fun lwjglJarOrder(name: String, versionDir: String, isLwjgl2: Boolean): Int = when (name) {
