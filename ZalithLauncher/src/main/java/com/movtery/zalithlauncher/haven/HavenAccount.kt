@@ -70,10 +70,10 @@ object HavenAccount {
         running = true
         scope.launch {
             try {
-                val name = withContext(Dispatchers.IO) { claim(context) }
+                val (name, haven) = withContext(Dispatchers.IO) { claim(context) }
                 AccountsManager.accountsFlow.value.firstOrNull { it.username == name && it.isLocalAccount() }
                     ?.let { AccountsManager.setCurrentAccount(it) } ?: localLogin(name, null)
-                toast(context, "Haven hesabı ile girildi: $name")
+                toast(context, if (haven.isNotEmpty()) "Haven hesabın: $haven · oyundaki adın: $name" else "Google ile girildi: $name")
             } catch (e: Exception) {
                 toast(context, e.message ?: "Google girişi başarısız")
             } finally {
@@ -82,7 +82,7 @@ object HavenAccount {
         }
     }
 
-    private suspend fun claim(context: Context): String {
+    private suspend fun claim(context: Context): Pair<String, String> {
         val rnd = SecureRandom()
         val verifier = b64url(ByteArray(32).also { rnd.nextBytes(it) })
         val state = b64url(ByteArray(32).also { rnd.nextBytes(it) })
@@ -112,25 +112,37 @@ object HavenAccount {
         }
     }
 
-    /** The name the site keeps for this Google account; a first sign-in takes one from the Google profile and saves it. */
-    private fun finish(r: JSONObject): String {
+    /**
+     * The Haven account of this Google account (the site picks the one with the same Gmail, e.g. made on the site)
+     * and the in-game name the site keeps for it; a first sign-in names the player like that Haven account, else
+     * from the Google profile, and saves it.
+     */
+    private fun finish(r: JSONObject): Pair<String, String> {
         val token = r.optString("token")
+        var haven = ""
+        var made = false
+        // same call the desktop makes; the token is kept for capes, friends and the shop
+        if (token.isNotEmpty()) runCatching {
+            val body = JSONObject().put("token", token).put("device", "Haven Mobile").toString().toRequestBody("application/json".toMediaType())
+            client.newCall(Request.Builder().url("$API/auth/google").post(body).header("User-Agent", "HavenMobile").build()).execute().use { res ->
+                val o = JSONObject(res.body.string())
+                if (o.optBoolean("ok")) {
+                    File(PathManager.DIR_FILES_PRIVATE, ".haven-token").writeText(o.optString("token"))
+                    haven = o.optJSONObject("user")?.optString("display_name").orEmpty()
+                    made = o.optBoolean("created")
+                }
+            }
+        }
         val nick = r.optString("nick")
         val name = if (NAME.matches(nick)) nick else {
-            var n = sanitize(r.optString("given_name").ifEmpty { r.optString("name") })
+            // an existing Haven account names the player; a brand-new one would only repeat the email's first part
+            var n = if (made) "" else sanitize(haven)
+            if (n.length < 3) n = sanitize(r.optString("given_name").ifEmpty { r.optString("name") })
             if (n.length < 3) n = sanitize(r.optString("email").substringBefore('@'))
             if (n.length < 3) n = "Oyuncu" + r.optString("sub").takeLast(4)
             if (token.isNotEmpty()) runCatching { post(mapOf("action" to "setname", "token" to token, "name" to n)) }
             n
         }
-        // the Haven account for capes, friends and the shop; same call the desktop makes
-        if (token.isNotEmpty()) runCatching {
-            val body = JSONObject().put("token", token).put("device", "Haven Mobile").toString().toRequestBody("application/json".toMediaType())
-            client.newCall(Request.Builder().url("$API/auth/google").post(body).header("User-Agent", "HavenMobile").build()).execute().use { res ->
-                val o = JSONObject(res.body.string())
-                if (o.optBoolean("ok")) File(PathManager.DIR_FILES_PRIVATE, ".haven-token").writeText(o.optString("token"))
-            }
-        }
-        return name
+        return name to haven
     }
 }
