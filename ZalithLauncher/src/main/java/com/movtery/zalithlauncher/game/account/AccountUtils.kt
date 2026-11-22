@@ -184,7 +184,7 @@ fun microsoftLogin(
                 is XboxLoginException -> th.toLocal()
                 is UnknownHostException, is UnresolvedAddressException -> androidText(R.string.error_network_unreachable)
                 is ConnectException -> androidText(R.string.error_connection_failed)
-                is KtorResponseException -> th.toLocal()
+                is KtorResponseException -> microsoftErrorText(th)
                 is CancellationException -> { null }
                 else -> {
                     androidText(
@@ -317,6 +317,30 @@ fun otherLogin(
 fun Throwable.isReloginRequired(): Boolean {
     return this is CredentialsExpiredException ||
             (this is ResponseException && statusCode == 403)
+}
+
+/**
+ * Haven: a bare "(400) Sunucu isteği anlayamadı" doesn't say which step failed. Microsoft's own error code (in the
+ * exception text Ktor builds from the response body) gets a Turkish hint, and the step's host is added for support.
+ */
+private fun microsoftErrorText(th: KtorResponseException): AndroidStringText {
+    val text = th.message.orEmpty()
+    val host = th.response.call.request.url.let { it.host + it.encodedPath }
+    val code = Regex(""""error"\s*:\s*"([a-z_]+)"""").find(text)?.groupValues?.get(1)
+        ?: Regex(""""XErr"\s*:\s*(\d+)""").find(text)?.groupValues?.get(1)
+    val hint = when (code) {
+        "expired_token" -> "Kodun süresi doldu. Tekrar dene ve kodu 15 dakika içinde microsoft.com/link sayfasına gir."
+        "access_denied", "authorization_declined" -> "Microsoft sayfasında izin verilmedi. Tekrar dene ve \"Evet\"e bas."
+        "bad_verification_code" -> "Kod yanlış girildi. Tekrar dene ve uygulamadaki kodu aynen yaz."
+        "invalid_grant" -> "Microsoft oturumunun süresi dolmuş. Hesabı kaldırıp Microsoft ile yeniden ekle."
+        else -> null
+    }
+    Logger.error(TAG, "Microsoft login step failed at $host: ${text.take(600)}")
+    return when {
+        hint != null -> androidText(hint)
+        th.response.status.value == 400 -> androidText("Giriş başarısız (400 · $host${code?.let { " · $it" } ?: ""}). Tekrar dene; olmazsa bu yazının ekran görüntüsünü Discord'a at.")
+        else -> th.toLocal()
+    }
 }
 
 fun accountErrorText(th: Throwable): AndroidStringText = when (th) {
