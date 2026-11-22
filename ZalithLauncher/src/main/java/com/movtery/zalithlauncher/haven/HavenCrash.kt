@@ -60,8 +60,12 @@ object HavenCrash {
      * A native signal leads with itself; "Could not create the Java Virtual Machine" keeps the JVM's reason with it.
      */
     fun game(context: Context, log: File, exitMessage: String) {
-        val tail = runCatching { log.readText().takeLast(7000) }.getOrDefault("")
+        val text = runCatching { log.readText() }.getOrDefault("")
+        // the classpath / argument lines are thousands of characters of jar paths and pushed the real error out of the report
+        val tail = text.lines().filterNot { it.length > 600 && it.contains(".jar") }.joinToString("\n").takeLast(7000)
         val lines = tail.lines()
+        // the Java the game really ran with (the setting can say Java 8 while the version picks 21 on its own)
+        val usedJava = Regex("""Java Runtime: (\S+)""").find(text)?.groupValues?.get(1)
         val cause = if (NATIVE.containsMatchIn(exitMessage)) null
             else lines.firstOrNull { CAUSE.containsMatchIn(it) && !HARMLESS.containsMatchIn(it) }?.trim()?.take(200)
         val jvm = lines.indexOfFirst { it.contains("Could not create the Java Virtual Machine") }
@@ -70,7 +74,7 @@ object HavenCrash {
         val report = reportHead(tail)
         val reportCause = report?.lineSequence()?.firstOrNull { CAUSE.containsMatchIn(it) && !HARMLESS.containsMatchIn(it) && !it.contains("~~ERROR~~") }?.trim()?.take(200)
         val lead = reportCause ?: cause ?: exitMessage
-        val head = listOfNotNull(lead, if (lead != exitMessage) exitMessage else null, setup(context), jvm).joinToString("\n")
+        val head = listOfNotNull(lead, if (lead != exitMessage) exitMessage else null, setup(context) + (usedJava?.let { " · kullanılan Java $it" } ?: ""), jvm).joinToString("\n")
         val body = listOfNotNull(report?.let { "--- Çökme raporu ---\n$it" }, "--- Oyun günlüğünün sonu ---\n$tail").joinToString("\n\n")
         send(context, "$head\n\n$body".take(8000), "Oyun")
     }

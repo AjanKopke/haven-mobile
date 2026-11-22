@@ -124,6 +124,7 @@ import com.movtery.zalithlauncher.game.account.auth_server.models.AuthResult
 import com.movtery.zalithlauncher.game.account.getAccountTypeName
 import com.movtery.zalithlauncher.game.account.getUUIDFromUserName
 import com.movtery.zalithlauncher.game.account.isLocalAccount
+import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.game.account.isMicrosoftAccount
 import com.movtery.zalithlauncher.game.account.isSkinChangeAllowed
 import com.movtery.zalithlauncher.game.account.wardrobe.EmptyCape
@@ -377,6 +378,27 @@ fun AccountItem(
 
                 //更多操作
                 var menuExpanded by remember { mutableStateOf(false) }
+                // offline account rename: same UUID, so skin and single-player worlds stay with it
+                var renaming by remember { mutableStateOf<String?>(null) }
+                renaming?.let { name ->
+                    val valid = Regex("^[A-Za-z0-9_]{3,16}$").matches(name)
+                    SimpleEditDialog(
+                        title = "Adını değiştir",
+                        value = name,
+                        onValueChange = { renaming = it.trim() },
+                        isError = !valid,
+                        supportingText = { Text("3–16 karakter: harf, rakam ve _") },
+                        singleLine = true,
+                        onDismissRequest = { renaming = null },
+                        onConfirm = {
+                            if (valid) {
+                                account.username = name
+                                AccountsManager.saveAccount(account)
+                                renaming = null
+                            }
+                        }
+                    )
+                }
                 Box {
                     IconButton(onClick = { menuExpanded = true }) {
                         Icon(
@@ -402,6 +424,19 @@ fun AccountItem(
                             onClick = {
                                 menuExpanded = false
                                 openChangeSkinDialog()
+                            }
+                        )
+                        if (account.isLocalAccount()) DropdownMenuItem(
+                            text = { Text("Adını değiştir") },
+                            leadingIcon = {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_edit_outlined),
+                                    contentDescription = null
+                                )
+                            },
+                            onClick = {
+                                menuExpanded = false
+                                renaming = account.username
                             }
                         )
                         DropdownMenuItem(
