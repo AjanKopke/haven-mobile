@@ -1,33 +1,33 @@
 {
-  "code": 14,
-  "version": "1.0.13",
-  "created_at": "2026-11-21T22:43:14Z",
+  "code": 15,
+  "version": "1.0.14",
+  "created_at": "2026-11-22T11:14:12Z",
   "files": [
     {
-      "file_name": "HavenMobile-1.0.13-arm64-v8a.apk",
-      "uri": "https://github.com/AjanKopke/haven-mobile/releases/download/v1.0.13/HavenMobile-1.0.13-arm64-v8a.apk",
+      "file_name": "HavenMobile-1.0.14-arm64-v8a.apk",
+      "uri": "https://github.com/AjanKopke/haven-mobile/releases/download/v1.0.14/HavenMobile-1.0.14-arm64-v8a.apk",
       "arch": "arm64",
-      "size": 189986883
+      "size": 189987047
     },
     {
-      "file_name": "HavenMobile-1.0.13-armeabi-v7a.apk",
-      "uri": "https://github.com/AjanKopke/haven-mobile/releases/download/v1.0.13/HavenMobile-1.0.13-armeabi-v7a.apk",
+      "file_name": "HavenMobile-1.0.14-armeabi-v7a.apk",
+      "uri": "https://github.com/AjanKopke/haven-mobile/releases/download/v1.0.14/HavenMobile-1.0.14-armeabi-v7a.apk",
       "arch": "arm",
-      "size": 181539484
+      "size": 181539656
     }
   ],
   "default_body": {
     "language": "tr",
-    "markdown": "1.0.13: Forge/NeoForge packs whose mods ship their own LWJGL Vulkan no longer stop with 'reads more than one module named org.lwjgl.vulkan'"
+    "markdown": "1.0.14: Google sign-in opens the Haven account of that Gmail (also one made on the site) and says which; a first sign-in takes that account's name"
   },
   "bodies": [
     {
       "language": "tr",
-      "markdown": "1.0.13: Forge/NeoForge packs whose mods ship their own LWJGL Vulkan no longer stop with 'reads more than one module named org.lwjgl.vulkan'"
+      "markdown": "1.0.14: Google sign-in opens the Haven account of that Gmail (also one made on the site) and says which; a first sign-in takes that account's name"
     },
     {
       "language": "en",
-      "markdown": "1.0.13: Forge/NeoForge packs whose mods ship their own LWJGL Vulkan no longer stop with 'reads more than one module named org.lwjgl.vulkan'"
+      "markdown": "1.0.14: Google sign-in opens the Haven account of that Gmail (also one made on the site) and says which; a first sign-in takes that account's name"
     }
   ]
 }
