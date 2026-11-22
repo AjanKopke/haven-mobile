@@ -1,33 +1,33 @@
 {
-  "code": 15,
-  "version": "1.0.14",
-  "created_at": "2026-11-22T11:14:12Z",
+  "code": 16,
+  "version": "1.0.15",
+  "created_at": "2026-11-22T16:19:14Z",
   "files": [
     {
-      "file_name": "HavenMobile-1.0.14-arm64-v8a.apk",
-      "uri": "https://github.com/AjanKopke/haven-mobile/releases/download/v1.0.14/HavenMobile-1.0.14-arm64-v8a.apk",
+      "file_name": "HavenMobile-1.0.15-arm64-v8a.apk",
+      "uri": "https://github.com/AjanKopke/haven-mobile/releases/download/v1.0.15/HavenMobile-1.0.15-arm64-v8a.apk",
       "arch": "arm64",
-      "size": 189987047
+      "size": 189987907
     },
     {
-      "file_name": "HavenMobile-1.0.14-armeabi-v7a.apk",
-      "uri": "https://github.com/AjanKopke/haven-mobile/releases/download/v1.0.14/HavenMobile-1.0.14-armeabi-v7a.apk",
+      "file_name": "HavenMobile-1.0.15-armeabi-v7a.apk",
+      "uri": "https://github.com/AjanKopke/haven-mobile/releases/download/v1.0.15/HavenMobile-1.0.15-armeabi-v7a.apk",
       "arch": "arm",
-      "size": 181539656
+      "size": 181540524
     }
   ],
   "default_body": {
     "language": "tr",
-    "markdown": "1.0.14: Google sign-in opens the Haven account of that Gmail (also one made on the site) and says which; a first sign-in takes that account's name"
+    "markdown": "1.0.15: a failed Microsoft sign-in says why (code expired, permission not given, wrong code, session expired) or which step answered 400, instead of a bare 'Sunucu isteği anlayamadı'"
   },
   "bodies": [
     {
       "language": "tr",
-      "markdown": "1.0.14: Google sign-in opens the Haven account of that Gmail (also one made on the site) and says which; a first sign-in takes that account's name"
+      "markdown": "1.0.15: a failed Microsoft sign-in says why (code expired, permission not given, wrong code, session expired) or which step answered 400, instead of a bare 'Sunucu isteği anlayamadı'"
     },
     {
       "language": "en",
-      "markdown": "1.0.14: Google sign-in opens the Haven account of that Gmail (also one made on the site) and says which; a first sign-in takes that account's name"
+      "markdown": "1.0.15: a failed Microsoft sign-in says why (code expired, permission not given, wrong code, session expired) or which step answered 400, instead of a bare 'Sunucu isteği anlayamadı'"
     }
   ]
 }
