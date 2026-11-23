@@ -32,6 +32,7 @@ import com.movtery.zalithlauncher.game.launch.LogName
 import com.movtery.zalithlauncher.game.path.getVersionsHome
 import com.movtery.zalithlauncher.game.renderer.RendererInterface
 import com.movtery.zalithlauncher.game.renderer.Renderers
+import com.movtery.zalithlauncher.game.renderer.renderers.MobileGluesRenderer
 import com.movtery.zalithlauncher.game.version.installed.utils.isBiggerVer
 import com.movtery.zalithlauncher.game.support.touch_controller.VibrationHandler
 import com.movtery.zalithlauncher.path.PathManager
@@ -214,6 +215,7 @@ class Version(
 
     fun getRenderer(): String {
         val chosen = versionConfig.renderer.getValueOrDefault(RendererSettings.renderer.getValue())
+            .ifEmpty { defaultRenderer() }
         val mcVer = getVersionInfo()?.minecraftVersion ?: return chosen
         val all = Renderers.getRenderers()
         if (all.isEmpty()) return chosen
@@ -224,6 +226,17 @@ class Version(
         val current = all.find { it.getUniqueIdentifier() == chosen } ?: all[0]
         if (fits(current)) return chosen
         return all.firstOrNull(fits)?.getUniqueIdentifier() ?: chosen
+    }
+
+    /**
+     * Haven: nothing picked anywhere → MobileGlues (OpenGL 4, handles mods like TaCZ that need a stencil framebuffer,
+     * which crash on Krypton Wrapper). It needs OpenGL ES 3.2; older GPUs keep the list's first renderer.
+     */
+    private fun defaultRenderer(): String {
+        val gles = runCatching {
+            (GlobalContext.getSystemService(Context.ACTIVITY_SERVICE) as android.app.ActivityManager).deviceConfigurationInfo.reqGlEsVersion
+        }.getOrDefault(0)
+        return if (gles >= 0x30002) MobileGluesRenderer.getUniqueIdentifier() else ""
     }
 
     fun isSfpewPluginLayerEnabled(): Boolean = versionConfig.isSfpewPluginLayerEnabled()
