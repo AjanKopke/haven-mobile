@@ -61,11 +61,13 @@ class JvmService : Service() {
             return START_NOT_STICKY
         }
 
+        intent.setExtrasClassLoader(NoticeProgress::class.java.classLoader)
         val jvmArgs = intent.extras?.getString(SERVICE_JVM_ARGS) ?: error("The JVM parameters must be set.")
         val jreName = intent.extras?.getString(SERVICE_JRE_NAME)
         val userHome = intent.extras?.getString(SERVICE_USER_HOME)
         val postSummary = intent.extras?.getString(SERVICE_POST_SUMMARY)
-        val postProgress = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        // the typed call is broken on Android 13 for app classes (see Bundles.getParcelableSafely)
+        val postProgress = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             intent.extras?.getParcelable(SERVICE_POST_PROGRESS, NoticeProgress::class.java)
         } else {
             @Suppress("DEPRECATION")

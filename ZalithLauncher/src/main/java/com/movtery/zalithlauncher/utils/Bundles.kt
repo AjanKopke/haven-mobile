@@ -25,8 +25,11 @@ import java.io.Serializable
 
 @Suppress("DEPRECATION")
 fun <T : Parcelable> Bundle.getParcelableSafely(key: String?, clazz: Class<T>): T? {
+    // Android 13's typed getParcelable throws a NullPointerException (Class.isInterface on null) for app classes:
+    // the typed call only from Android 14 on, and the app's class loader set for the untyped one
+    classLoader = clazz.classLoader
     return when {
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> getParcelable(key, clazz)
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE -> getParcelable(key, clazz)
         else -> getParcelable(key)
     }
 }
