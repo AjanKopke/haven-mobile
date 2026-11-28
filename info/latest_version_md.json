@@ -1,33 +1,33 @@
 {
-  "code": 21,
-  "version": "1.0.20",
-  "created_at": "2026-11-28T15:08:53Z",
+  "code": 22,
+  "version": "1.0.21",
+  "created_at": "2026-11-28T16:38:02Z",
   "files": [
     {
-      "file_name": "HavenMobile-1.0.20-arm64-v8a.apk",
-      "uri": "https://github.com/AjanKopke/haven-mobile/releases/download/v1.0.20/HavenMobile-1.0.20-arm64-v8a.apk",
+      "file_name": "HavenMobile-1.0.21-arm64-v8a.apk",
+      "uri": "https://github.com/AjanKopke/haven-mobile/releases/download/v1.0.21/HavenMobile-1.0.21-arm64-v8a.apk",
       "arch": "arm64",
-      "size": 189989515
+      "size": 189990431
     },
     {
-      "file_name": "HavenMobile-1.0.20-armeabi-v7a.apk",
-      "uri": "https://github.com/AjanKopke/haven-mobile/releases/download/v1.0.20/HavenMobile-1.0.20-armeabi-v7a.apk",
+      "file_name": "HavenMobile-1.0.21-armeabi-v7a.apk",
+      "uri": "https://github.com/AjanKopke/haven-mobile/releases/download/v1.0.21/HavenMobile-1.0.21-armeabi-v7a.apk",
       "arch": "arm",
-      "size": 181542020
+      "size": 181542920
     }
   ],
   "default_body": {
     "language": "tr",
-    "markdown": "1.0.20: Android 11 and older keep the old default renderer; fall back from automatic MobileGlues when it never finished loading"
+    "markdown": "1.0.21: fix crash on every start since 1.0.19 (settings state made in the global snapshot); read all settings once at app start instead"
   },
   "bodies": [
     {
       "language": "tr",
-      "markdown": "1.0.20: Android 11 and older keep the old default renderer; fall back from automatic MobileGlues when it never finished loading"
+      "markdown": "1.0.21: fix crash on every start since 1.0.19 (settings state made in the global snapshot); read all settings once at app start instead"
     },
     {
       "language": "en",
-      "markdown": "1.0.20: Android 11 and older keep the old default renderer; fall back from automatic MobileGlues when it never finished loading"
+      "markdown": "1.0.21: fix crash on every start since 1.0.19 (settings state made in the global snapshot); read all settings once at app start instead"
     }
   ]
 }
