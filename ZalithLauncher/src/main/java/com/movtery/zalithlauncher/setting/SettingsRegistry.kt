@@ -38,6 +38,9 @@ import com.movtery.zalithlauncher.setting.unit.parcelableSettingUnit
 abstract class SettingsRegistry {
     protected val refreshableList = mutableListOf<AbstractSettingUnit<*>>()
 
+    /** Read every setting once, outside any composition (see AbstractSettingUnit._state). */
+    fun materializeAll() = refreshableList.forEach { it.init() }
+
     fun reloadAll() = refreshableList.forEach { unit ->
         if (unit.isMaterialized) unit.init()
     }

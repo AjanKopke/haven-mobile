@@ -41,6 +41,8 @@ fun loadAllSettings(context: Context, reloadAll: Boolean = false) {
         return
     }
 
+    listOf(RendererSettings, GameSettings, ControlSettings, LauncherSettings, GameUiSettings, MiscSettings).forEach { it.materializeAll() }
+
     if (GameSettings.ramAllocation.getValue() == null) {
         val ram = findBestRAMAllocation(context)
         GameSettings.ramAllocation.save(ram)

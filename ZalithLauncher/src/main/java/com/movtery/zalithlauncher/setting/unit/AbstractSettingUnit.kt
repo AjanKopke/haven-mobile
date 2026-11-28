@@ -20,16 +20,15 @@ package com.movtery.zalithlauncher.setting.unit
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.snapshots.Snapshot
 
 abstract class AbstractSettingUnit<V>(
     val key: String,
     val defaultValue: V
 ) {
-    // created in the global snapshot: made lazily inside a composition, other snapshots could not read it
-    // ("Reading a state that was created after the snapshot was taken")
+    // Haven: every unit is materialized at app start (SettingsRegistry.materializeAll), so no state is first made
+    // inside a composition snapshot ("Reading a state that was created after the snapshot was taken")
     private val _state: Lazy<MutableState<V>> = lazy {
-        Snapshot.global { mutableStateOf(runCatching { readValue() }.getOrDefault(defaultValue)) }
+        mutableStateOf(runCatching { readValue() }.getOrDefault(defaultValue))
     }
 
     /**
