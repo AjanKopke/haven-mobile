@@ -47,6 +47,7 @@ import com.movtery.zalithlauncher.game.plugin.renderer.RendererPluginManager
 import com.movtery.zalithlauncher.game.renderer.ConfigurableRenderer
 import com.movtery.zalithlauncher.game.renderer.RendererLaunchConfig
 import com.movtery.zalithlauncher.game.renderer.Renderers
+import com.movtery.zalithlauncher.game.renderer.renderers.MobileGluesRenderer
 import com.movtery.zalithlauncher.game.renderer.getSfpewLibraryPath
 import com.movtery.zalithlauncher.game.renderer.isSfpewEnabledFor
 import com.movtery.zalithlauncher.game.renderer.prepareRendererLaunchConfig
@@ -274,6 +275,11 @@ class GameLauncher(
         // Haven additions never stop a launch: whatever fails here, the game still starts as plain Zalith would
         runCatching { HavenMod.addTo(activity, version, launchArgs) }
         runCatching { com.movtery.zalithlauncher.haven.HavenCrash.played(activity, version.getVersionInfo()?.minecraftVersion ?: "") }
+        runCatching {
+            if (version.isRendererAuto() && Renderers.getCurrentRenderer().getUniqueIdentifier() == MobileGluesRenderer.getUniqueIdentifier()) {
+                com.movtery.zalithlauncher.haven.HavenRenderGuard.trying(gameDirPath)
+            }
+        }
         withContext(Dispatchers.IO) { runCatching { HavenPerformance.ensure(version) } }
         // a Haven Play join waiting on this profile: straight into the friend's world
         withContext(Dispatchers.IO) { runCatching { HavenPlay.launchAddress(gameDirPath) }.getOrNull() }?.let { address ->

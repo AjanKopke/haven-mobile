@@ -236,8 +236,11 @@ class Version(
         val gles = runCatching {
             (GlobalContext.getSystemService(Context.ACTIVITY_SERVICE) as android.app.ActivityManager).deviceConfigurationInfo.reqGlEsVersion
         }.getOrDefault(0)
-        return if (gles >= 0x30002) MobileGluesRenderer.getUniqueIdentifier() else ""
+        return if (gles >= 0x30002 && com.movtery.zalithlauncher.haven.HavenRenderGuard.mobileGluesAllowed()) MobileGluesRenderer.getUniqueIdentifier() else ""
     }
+
+    /** no renderer chosen in the profile or the settings: [defaultRenderer] decides */
+    fun isRendererAuto(): Boolean = versionConfig.renderer.getValueOrDefault(RendererSettings.renderer.getValue()).isEmpty()
 
     fun isSfpewPluginLayerEnabled(): Boolean = versionConfig.isSfpewPluginLayerEnabled()
 
