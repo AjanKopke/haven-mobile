@@ -48,7 +48,7 @@ object HavenPerformance {
         }
     }.getOrNull()
 
-    private fun versionFor(project: String, mc: String): JSONObject? {
+    internal fun versionFor(project: String, mc: String): JSONObject? {
         val url = "$API/project/$project/version".toHttpUrl().newBuilder()
             .addQueryParameter("loaders", "[\"fabric\"]")
             .addQueryParameter("game_versions", "[\"$mc\"]")
@@ -61,7 +61,7 @@ object HavenPerformance {
 
     private fun sha1(file: File) = MessageDigest.getInstance("SHA-1").digest(file.readBytes()).joinToString("") { "%02x".format(it) }
 
-    private fun download(v: JSONObject, modsDir: File): Boolean {
+    internal fun download(v: JSONObject, modsDir: File): Boolean {
         val files = v.optJSONArray("files") ?: return false
         val f = (0 until files.length()).map { files.getJSONObject(it) }.let { l -> l.firstOrNull { it.optBoolean("primary") } ?: l.firstOrNull() } ?: return false
         val name = f.getString("filename")

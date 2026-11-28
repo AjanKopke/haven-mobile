@@ -281,6 +281,7 @@ class GameLauncher(
             }
         }
         withContext(Dispatchers.IO) { runCatching { HavenPerformance.ensure(version) } }
+        withContext(Dispatchers.IO) { runCatching { com.movtery.zalithlauncher.haven.HavenDeps.ensure(version) } }
         // a Haven Play join waiting on this profile: straight into the friend's world
         withContext(Dispatchers.IO) { runCatching { HavenPlay.launchAddress(gameDirPath) }.getOrNull() }?.let { address ->
             val port = address.substringAfterLast(':').toIntOrNull() ?: 25565

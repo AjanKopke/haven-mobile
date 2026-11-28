@@ -20,6 +20,10 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
@@ -28,6 +32,7 @@ import java.io.InputStream
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.security.MessageDigest
+import java.util.concurrent.TimeUnit
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
@@ -147,20 +152,55 @@ object HavenPlay {
         }
     }.getOrDefault(false)
 
+    private fun copyChecked(input: InputStream, mod: HavenModFile, out: java.io.OutputStream, onData: (Int) -> Unit) {
+        val md = MessageDigest.getInstance("SHA-1")
+        val buf = ByteArray(64 * 1024)
+        while (true) {
+            val n = input.read(buf)
+            if (n < 0) break
+            md.update(buf, 0, n)
+            out.write(buf, 0, n)
+            onData(n)
+        }
+        val got = md.digest().joinToString("") { "%02x".format(it) }
+        if (got != mod.sha1) error("Mod dosyası eksik geldi: ${mod.name}")
+    }
+
     private fun downloadMod(host: String, port: Int, mod: HavenModFile, out: java.io.OutputStream, onData: (Int) -> Unit) {
-        ask(host, port, "file ${mod.sha1}", 10_000).use { s ->
-            val md = MessageDigest.getInstance("SHA-1")
-            val input: InputStream = s.getInputStream()
-            val buf = ByteArray(64 * 1024)
-            while (true) {
-                val n = input.read(buf)
-                if (n < 0) break
-                md.update(buf, 0, n)
-                out.write(buf, 0, n)
-                onData(n)
+        ask(host, port, "file ${mod.sha1}", 10_000).use { s -> copyChecked(s.getInputStream(), mod, out, onData) }
+    }
+
+    private val http = OkHttpClient.Builder().connectTimeout(15, TimeUnit.SECONDS).readTimeout(30, TimeUnit.SECONDS).build()
+
+    /**
+     * sha1 → Modrinth download URL for each of the host's jars that Modrinth has byte for byte. Those come from
+     * Modrinth's CDN instead of the host's upload through the tunnel, which used to break on big jars like
+     * fabric-language-kotlin. Empty when Modrinth can't be reached: then everything comes from the host as before.
+     */
+    private fun modrinthUrls(mods: List<HavenModFile>): Map<String, String> = runCatching {
+        if (mods.isEmpty()) return emptyMap()
+        val body = JSONObject().put("algorithm", "sha1").put("hashes", JSONArray(mods.map { it.sha1 })).toString()
+        val req = Request.Builder().url("https://api.modrinth.com/v2/version_files").header("User-Agent", "HavenMobile (havenclient.net)")
+            .post(body.toRequestBody("application/json".toMediaType())).build()
+        http.newCall(req).execute().use { r ->
+            if (!r.isSuccessful) return emptyMap()
+            val o = JSONObject(r.body.string())
+            buildMap {
+                for (sha in o.keys()) {
+                    val files = o.optJSONObject(sha)?.optJSONArray("files") ?: continue
+                    for (i in 0 until files.length()) {
+                        val f = files.getJSONObject(i)
+                        if (f.optJSONObject("hashes")?.optString("sha1") == sha) put(sha, f.getString("url"))
+                    }
+                }
             }
-            val got = md.digest().joinToString("") { "%02x".format(it) }
-            if (got != mod.sha1) error("Mod dosyası eksik geldi: ${mod.name}")
+        }
+    }.getOrDefault(emptyMap())
+
+    private fun downloadUrl(url: String, mod: HavenModFile, out: java.io.OutputStream, onData: (Int) -> Unit) {
+        http.newCall(Request.Builder().url(url).header("User-Agent", "HavenMobile (havenclient.net)").build()).execute().use { r ->
+            if (!r.isSuccessful) error("HTTP ${r.code}")
+            copyChecked(r.body.byteStream(), mod, out, onData)
         }
     }
 
@@ -219,13 +259,19 @@ object HavenPlay {
                 zip.write(joinJson(manifest, invite, friend).toByteArray())
                 zip.closeEntry()
                 val part = File(PathManager.DIR_CACHE, "haven-play-mod.part")
+                val cdn = modrinthUrls(manifest.mods)
                 manifest.mods.forEachIndexed { i, first ->
                     var mod = first
                     var tries = 0
                     while (true) {
                         onStatus("Modlar alınıyor ${i + 1}/${manifest.mods.size}: ${mod.name}" + if (tries > 0) " (tekrar deneniyor)" else "")
                         try {
-                            part.outputStream().buffered().use { out -> downloadMod(route.host, route.port, mod, out) { n -> got += n } }
+                            // Modrinth first when it has this exact jar; the host on a retry or when Modrinth doesn't
+                            val url = cdn[mod.sha1]?.takeIf { tries == 0 }
+                            part.outputStream().buffered().use { out ->
+                                if (url != null) downloadUrl(url, mod, out) { n -> got += n }
+                                else downloadMod(route.host, route.port, mod, out) { n -> got += n }
+                            }
                             break
                         } catch (e: Exception) {
                             if (++tries >= 3) throw e
