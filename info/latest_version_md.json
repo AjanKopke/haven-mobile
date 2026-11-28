@@ -1,33 +1,33 @@
 {
-  "code": 20,
-  "version": "1.0.19",
-  "created_at": "2026-11-27T22:05:52Z",
+  "code": 21,
+  "version": "1.0.20",
+  "created_at": "2026-11-28T15:08:53Z",
   "files": [
     {
-      "file_name": "HavenMobile-1.0.19-arm64-v8a.apk",
-      "uri": "https://github.com/AjanKopke/haven-mobile/releases/download/v1.0.19/HavenMobile-1.0.19-arm64-v8a.apk",
+      "file_name": "HavenMobile-1.0.20-arm64-v8a.apk",
+      "uri": "https://github.com/AjanKopke/haven-mobile/releases/download/v1.0.20/HavenMobile-1.0.20-arm64-v8a.apk",
       "arch": "arm64",
-      "size": 189989619
+      "size": 189989515
     },
     {
-      "file_name": "HavenMobile-1.0.19-armeabi-v7a.apk",
-      "uri": "https://github.com/AjanKopke/haven-mobile/releases/download/v1.0.19/HavenMobile-1.0.19-armeabi-v7a.apk",
+      "file_name": "HavenMobile-1.0.20-armeabi-v7a.apk",
+      "uri": "https://github.com/AjanKopke/haven-mobile/releases/download/v1.0.20/HavenMobile-1.0.20-armeabi-v7a.apk",
       "arch": "arm",
-      "size": 181542132
+      "size": 181542020
     }
   ],
   "default_body": {
     "language": "tr",
-    "markdown": "1.0.19: fix launcher crash reading settings created inside a composition snapshot; fix Android 13 Parcelable NPE in VMActivity/JvmService"
+    "markdown": "1.0.20: Android 11 and older keep the old default renderer; fall back from automatic MobileGlues when it never finished loading"
   },
   "bodies": [
     {
       "language": "tr",
-      "markdown": "1.0.19: fix launcher crash reading settings created inside a composition snapshot; fix Android 13 Parcelable NPE in VMActivity/JvmService"
+      "markdown": "1.0.20: Android 11 and older keep the old default renderer; fall back from automatic MobileGlues when it never finished loading"
     },
     {
       "language": "en",
-      "markdown": "1.0.19: fix launcher crash reading settings created inside a composition snapshot; fix Android 13 Parcelable NPE in VMActivity/JvmService"
+      "markdown": "1.0.20: Android 11 and older keep the old default renderer; fall back from automatic MobileGlues when it never finished loading"
     }
   ]
 }
